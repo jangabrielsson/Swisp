@@ -275,6 +275,10 @@ class LispState {
         setupBuiltins()
     }
     
+    func readExpr(_ stream: InputStream) throws -> Expr {
+        return try parser.parse(stream)
+    }
+    
     func parse(_ str: String) throws -> Expr {
         return try parser.parse(str:str)
     }

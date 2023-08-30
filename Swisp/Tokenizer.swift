@@ -91,7 +91,7 @@ class Tokenizer {
             s.push(t:.SYM)
             return false
         }
-        if c == "_" || CharacterSet.letters.contains(c) {
+        if c == "_" || c == "*" || c == "-" || c == "&" || CharacterSet.letters.contains(c) {
             s.buff.append(c)
             return true
         } else {
@@ -119,9 +119,9 @@ class Tokenizer {
     
     static var tokenizerLookup: [CType:ParseFun] = {
         var tm: [CType:ParseFun] = ["\"" : Tokenizer.stringTokenizer]
-        addTokenizerFuns(tm:&tm,str:"()[]+-/*,.'", tf: Tokenizer.charTokenizer)
+        addTokenizerFuns(tm:&tm,str:"()[]+/,.'", tf: Tokenizer.charTokenizer)
         addTokenizerFuns(tm:&tm,str:"0123456789", tf: Tokenizer.numTokenizer)
-        addTokenizerFuns(tm:&tm,str:"_ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz", tf: Tokenizer.symbolTokenizer)
+        addTokenizerFuns(tm:&tm,str:"-*&_ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz", tf: Tokenizer.symbolTokenizer)
         return tm
     }()
     

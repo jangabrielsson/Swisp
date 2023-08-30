@@ -24,6 +24,25 @@ print("Hello, World!")
 //let expr = try pp.parse(tk:tt)
 //print(expr)
 
+enum File {
+  static func appData(from file: String, in bundle: Bundle = .main) -> Data? {
+    guard let path = bundle.url(forResource: file, withExtension: nil) else {
+      return nil
+    }
+
+    var data: Data?
+    do {
+      data = try Data(contentsOf: path)
+    }
+    catch {
+      print("Error reading data: \(error)")
+    }
+
+    return data
+  }
+}
+
+
 let Lisp = LispState()
 
 while true {

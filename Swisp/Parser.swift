@@ -49,6 +49,10 @@ class Parser {
         }
     }
     
+    func parse(_ stream: InputStream) throws -> Expr {
+        
+    }
+    
     func parse(tk: Tokenizer) throws -> Expr {
         let t = tk.next()
         if t.token == .EOF {

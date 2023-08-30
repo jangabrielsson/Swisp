@@ -18,17 +18,21 @@
 		E6D62BE02A9F301A004A4F63 /* Builtins.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BB02A9EFD43004A4F63 /* Builtins.swift */; };
 		E6D62BE12A9F301A004A4F63 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BAA2A9E2852004A4F63 /* Tokenizer.swift */; };
 		E6D62BE22A9F301A004A4F63 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BA82A9E2803004A4F63 /* Parser.swift */; };
+		E6D62BE42A9F850B004A4F63 /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BE32A9F850B004A4F63 /* InputStream.swift */; };
+		E6D62BEE2A9F9198004A4F63 /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BE32A9F850B004A4F63 /* InputStream.swift */; };
+		E6D62BF42A9F96A5004A4F63 /* Init.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BF32A9F96A5004A4F63 /* Init.swift */; };
+		E6D62BF52A9F96A5004A4F63 /* Init.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BF32A9F96A5004A4F63 /* Init.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		E6D62B9C2A9E27EC004A4F63 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -42,6 +46,8 @@
 		E6D62BD62A9F2EB2004A4F63 /* SwispTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwispTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6D62BD82A9F2EB2004A4F63 /* SwispTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwispTest.swift; sourceTree = "<group>"; };
 		E6D62BDD2A9F2F01004A4F63 /* Swisp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; name = Swisp.xctestplan; path = SwispTest/Swisp.xctestplan; sourceTree = SOURCE_ROOT; };
+		E6D62BE32A9F850B004A4F63 /* InputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputStream.swift; sourceTree = "<group>"; };
+		E6D62BF32A9F96A5004A4F63 /* Init.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Init.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +94,8 @@
 				E6D62BB02A9EFD43004A4F63 /* Builtins.swift */,
 				E6D62BAA2A9E2852004A4F63 /* Tokenizer.swift */,
 				E6D62BA82A9E2803004A4F63 /* Parser.swift */,
+				E6D62BE32A9F850B004A4F63 /* InputStream.swift */,
+				E6D62BF32A9F96A5004A4F63 /* Init.swift */,
 			);
 			path = Swisp;
 			sourceTree = "<group>";
@@ -192,8 +200,10 @@
 			files = (
 				E6D62BA92A9E2803004A4F63 /* Parser.swift in Sources */,
 				E6D62BAD2A9E2868004A4F63 /* Lisp.swift in Sources */,
+				E6D62BF42A9F96A5004A4F63 /* Init.swift in Sources */,
 				E6D62BAB2A9E2852004A4F63 /* Tokenizer.swift in Sources */,
 				E6D62BB12A9EFD43004A4F63 /* Builtins.swift in Sources */,
+				E6D62BE42A9F850B004A4F63 /* InputStream.swift in Sources */,
 				E6D62BA22A9E27EC004A4F63 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,7 +213,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				E6D62BDE2A9F301A004A4F63 /* main.swift in Sources */,
+				E6D62BF52A9F96A5004A4F63 /* Init.swift in Sources */,
 				E6D62BDF2A9F301A004A4F63 /* Lisp.swift in Sources */,
+				E6D62BEE2A9F9198004A4F63 /* InputStream.swift in Sources */,
 				E6D62BE02A9F301A004A4F63 /* Builtins.swift in Sources */,
 				E6D62BE12A9F301A004A4F63 /* Tokenizer.swift in Sources */,
 				E6D62BE22A9F301A004A4F63 /* Parser.swift in Sources */,
