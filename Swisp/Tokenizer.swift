@@ -88,7 +88,7 @@ class Tokenizer {
         var tm: [CType:ParseFun] = ["\"" : Tokenizer.stringTokenizer]
         addTokenizerFuns(tm:&tm,str:"()[]+/,.'", tf: Tokenizer.charTokenizer)
         addTokenizerFuns(tm:&tm,str:"0123456789", tf: Tokenizer.numTokenizer)
-        addTokenizerFuns(tm:&tm,str:"-*&_ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz", tf: Tokenizer.symbolTokenizer)
+        addTokenizerFuns(tm:&tm,str:"-*&_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", tf: Tokenizer.symbolTokenizer)
         return tm
     }()
     

@@ -27,21 +27,19 @@ let init_lsp = """
        (if (and (consp x) (consp y))
            (and (equal (car x)(car y))
                    (equal (cdr x)(cdr y))))))
-"""
 
-let other_init = """
+
+(defmacro when (test &rest body)
+    (list 'if test (cons 'progn body)))
 
 ;;; (cond(test1 res1)(test2 res2)...) -> (if test1 res1 (if (test2 res2 ...)))
 
 (defmacro cond (&rest body)
-   (let* ((fc #'(fn (bl)
+   (let* ((fc (fn (bl)
                   (if (eq bl nil) nil
                          (list 'if (car (car bl)) (cons 'progn (cdr (car bl)))
                                   (fc (cdr bl)))))))
        (fc body)))
-
-(defmacro when (test &rest body)
-    (list 'if test (cons 'progn body)))
 
 (defun append(x y)
   (if (eq x '()) y
@@ -106,6 +104,10 @@ let other_init = """
 (defmacro error (format &rest msgs)
    (list '*error* (cons 'strformat (cons format msgs))))
 
+"""
+
+let other_init = """
+
 (require 'backquote "lib/Lisp/backquote.lsp")
 
 (defmacro unless (condition &rest body)
@@ -163,11 +165,11 @@ let other_init = """
             e))))
     (fun l)))
        
-(defun add (&rest lst) (foldl #'+ 0 lst)) ;
+(defun add (&rest lst) (foldl + 0 lst)) ;
             
 ;;; (case expr (val1 res1) (val2 res2) ...) -> (let ((test expr)) (cond ((eq test val1) res1) ...
 (defmacro case (&rest body)
-   (let* ((case1 #'(fn(x)
+   (let* ((case1 (fn(x)
                        (if (null x) nil
                          (cons (cons (list 'eq '*temp* (caar x))
                                  (cdar x))
@@ -193,7 +195,7 @@ let other_init = """
     `(progn (setq ,tt (clock) ,res ,expr ,tt (- (clock) ,tt)) (format t "%.5f seconds\n" ,tt) ,res)))
     
 (defun format (stream format &rest args)
-    (print (apply #'strformat (cons format args))))
+    (print (apply strformat (cons format args))))
 
 (defvar * nil)
 (defvar ** nil)

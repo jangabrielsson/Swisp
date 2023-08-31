@@ -192,21 +192,38 @@ class Func : Expr { // Expr wrapper for a Swift function
     }
 }
 
-extension Cons {
+extension Cons: Sequence {
     func toArray(cont: (Expr) throws -> Expr) throws -> [Expr] {
         var res = [Expr]()
-        var p = self as Expr
-        while p.isCons() {
-            let c = p as! Cons
-            try res.append(cont(c.carValue))
-            p = c.cdrValue
-        }
+        for e in self { try res.append(cont(e)) }
         return res
+    }
+    
+    func makeIterator() -> ConsIterator {
+        return ConsIterator(self)
     }
     
     func eval(_ env: Env) throws -> Expr {
         let f = try carValue.eval(env)
         return try f.call(cdrValue,env)
+    }
+}
+
+struct ConsIterator: IteratorProtocol {
+
+    private var p: Cons?
+
+    init(_ collection: Cons) {
+        self.p = collection
+    }
+
+    mutating func next() -> Expr? {
+        if let pn = p {
+            let v = pn.car
+            p = pn.cdr as? Cons
+            return v
+        }
+        return nil
     }
 }
 
@@ -274,7 +291,8 @@ class LispState {
         parser.lisp = self
         symbols["NIL"] = NIL
         symbols["TRUE"] = TRUE
-        symbols["T"] = TRUE
+        define(name:"T").set(TRUE)
+        define(name:"FN").set(intern(name:"LAMBDA"))
         QUOTE = define(name:"QUOTE")
         setupBuiltins()
     }

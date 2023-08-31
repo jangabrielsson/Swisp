@@ -47,6 +47,21 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
     return Func(fun:nf,name:"LAMBDA")
 }
 
+func let_star(_ args: ArgsList, _ env: Env) throws -> Expr {
+    env.push()
+    for p in args[0] as! Cons {
+        let v = try p.car as! Atom
+        env.bind(v,env.lisp.NIL)
+        try env.bind(v,p.cdr.car.eval(env))
+    }
+    var res: Expr?
+    for p in args[1...] {
+        res = try p.eval(env)
+    }
+    env.pop()
+    return res!
+}
+    
 extension LispState {
     func setupBuiltins() {
         define(name:"ADD") { args,_ in
@@ -79,11 +94,14 @@ extension LispState {
         define(name:"NUMBERP") { args,env in
             return args[0].isNum() ? env.lisp.TRUE : env.lisp.NIL
         }
-        define(name:"ATOMP") { args,env in
+        define(name:"ATOM") { args,env in
             return args[0].isAtom() ? env.lisp.TRUE : env.lisp.NIL
         }
         define(name:"QUOTE",evaluate:false) { args,_ in
             return args[0]
+        }
+        define(name:"PROGN") { args,_ in
+            return args.last!
         }
         define(name:"PRINT") { args,_ in
             let args = args[0]
@@ -105,6 +123,10 @@ extension LispState {
         define(name:"IF",evaluate:false) { args,env in
             return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : args[2].eval(env)
         }
+        define(name:"STRFORMAT") { args,env in
+            //let fmt = try args[0].str
+            return Str(str:"Not implmeneted yet")
+        }
         define(name:"DEFUN",evaluate:false) { args,env in
             let name = args[0] as! Atom
             let params = args[1]
@@ -112,7 +134,7 @@ extension LispState {
             let lambda = Cons(car: env.lisp.intern(name:"LAMBDA"),
                               cdr: Cons(car: params,cdr: body))
             try name.set(lambda.eval(env))
-            return lambda
+            return name
         }
         define(name:"DEFMACRO",evaluate:false) { args,env in
             let name = args[0] as! Atom
@@ -127,11 +149,13 @@ extension LispState {
                 print("MACROEXP:\(res)")
                 return try res.eval(env)
             }
-            name.set(Func(fun:nf,name:"MACRO",evaluate:false))
-            return lambda
+            let macro = Func(fun:nf,name:"MACRO",evaluate:false)
+            name.set(macro)
+            return name
         }
             
         define(name:"LAMBDA",evaluate:false,fun:lambda)
+        define(name:"LET*",evaluate:false,fun:let_star)
     }
 }
 
