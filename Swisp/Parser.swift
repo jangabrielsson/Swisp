@@ -33,7 +33,7 @@ class Parser {
         case .LPAR:
             t = try nextToken(tk)
             if t.token == .RPAR {
-                return Lisp.NIL
+                return lisp!.NIL
             } else {
                 pushback()
                 let l = try Cons(car: pp(tk:tk),cdr: lisp!.NIL)
@@ -56,7 +56,7 @@ class Parser {
                     }
                 }
             }
-        case .TOKEN: return Lisp.intern(name:t.value)
+        case .TOKEN: return lisp!.intern(name:t.value)
         default: throw LispError.parseError("Bad expr")
         }
     }

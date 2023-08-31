@@ -307,70 +307,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "57783913-4D72-4F23-BC97-B6511E17DADF"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Lisp.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "208"
-            endingLineNumber = "208"
-            landmarkName = "eval(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "44C4C6E1-7E98-4E86-9AE7-84961B7C907C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Lisp.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "207"
-            endingLineNumber = "207"
-            landmarkName = "eval(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "44C4C6E1-7E98-4E86-9AE7-84961B7C907C - efb7677e7d3ec817"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swisp.Cons.eval(Swisp.Env) throws -&gt; Swisp.Expr"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Lisp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "199"
-                  endingLineNumber = "199"
-                  offsetFromSymbolStart = "172">
-               </Location>
-               <Location
-                  uuid = "44C4C6E1-7E98-4E86-9AE7-84961B7C907C - efb7677e7d3ec817"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swisp.Cons.eval(Swisp.Env) throws -&gt; Swisp.Expr"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Lisp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "199"
-                  endingLineNumber = "199"
-                  offsetFromSymbolStart = "68">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "68CD6469-BDF2-4C6E-9168-0F61A36FFF84"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -426,8 +362,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "252"
-            endingLineNumber = "252"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
             landmarkName = "set(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -444,22 +380,6 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "115"
             endingLineNumber = "115"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6BBF6F03-FE54-47FC-B049-D4915782D7F3"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -746,8 +666,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "309"
-            endingLineNumber = "309"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
             <Locations>
@@ -905,8 +825,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -921,8 +841,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "148"
-            endingLineNumber = "148"
+            startingLineNumber = "152"
+            endingLineNumber = "152"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -937,8 +857,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "140"
-            endingLineNumber = "140"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -953,8 +873,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "146"
-            endingLineNumber = "146"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -969,14 +889,14 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
                <Location
                   uuid = "B6A448BC-33F0-45B4-8095-EC1E0D1DD543 - c818cec013142499"
-                  shouldBeEnabled = "Yes"
+                  shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
                   symbolName = "closure #16 (Swift.Array&lt;Swisp.Expr&gt;, Swisp.Env) throws -&gt; Swisp.Expr in Swisp.LispState.setupBuiltins() -&gt; ()"
@@ -1017,8 +937,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
+            startingLineNumber = "154"
+            endingLineNumber = "154"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>

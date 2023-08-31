@@ -121,7 +121,11 @@ extension LispState {
             return try env.lisp.arrayToList(args)
         }
         define(name:"IF",evaluate:false) { args,env in
-            return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : args[2].eval(env)
+            if args.count > 2 {
+                return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : args[2].eval(env)
+            } else {
+                return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : env.lisp.NIL
+            }
         }
         define(name:"STRFORMAT") { args,env in
             //let fmt = try args[0].str
@@ -144,9 +148,9 @@ extension LispState {
                               cdr: Cons(car: params,cdr: body)).eval(env) as! Func
             lambda.ev = false
             let nf = { (_ args:ArgsList,_ env:Env) throws -> Expr in
-                print("MACROARGS:\(args)")
+                if env.lisp.trace { print("MACROARGS:\(args)") }
                 let res = try lambda.fun(args,env)
-                print("MACROEXP:\(res)")
+                if env.lisp.trace { print("MACROEXP:\(res)") }
                 return try res.eval(env)
             }
             let macro = Func(fun:nf,name:"MACRO",evaluate:false)

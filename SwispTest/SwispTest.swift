@@ -10,16 +10,21 @@ import Swisp
 import UnitTestingSwisp
 
 final class SwispTest: XCTestCase {
-    let Lisp = LispState()
+    let Lisp = LispState(loadLibs: true)
     
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
-
+    
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
+    
+    override func setUp() {
+        super.setUp()
+    }
+    
+    
     func testEq() throws {
         XCTAssert(try Lisp.eq(Lisp.NIL,Lisp.NIL))
         XCTAssert(try Lisp.eq(Lisp.TRUE,Lisp.TRUE))
@@ -27,7 +32,7 @@ final class SwispTest: XCTestCase {
         XCTAssert(try Lisp.eq(Lisp.eval("55"),Lisp.eval("55")))
         XCTAssert(try Lisp.eq(Lisp.eval("\"55\""),Lisp.eval("\"55\"")))
     }
-
+    
     func testEqual() throws {
         XCTAssert(try Lisp.equal(Lisp.NIL,Lisp.NIL))
         XCTAssert(try Lisp.equal(Lisp.eval("'(a b c)"),Lisp.eval("'(a b c)")))
@@ -41,11 +46,15 @@ final class SwispTest: XCTestCase {
         XCTAssert(try Lisp.eval("(div 42 2)").num == 21)
     }
     
+    func testFuns() throws {
+        XCTAssert(try Lisp.eval("(equal '(a b c d) '(a b c d))").isEq(Lisp.TRUE))
+    }
+    
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         measure {
-            // Put the code you want to measure the time of here.
+            try! _ = Lisp.eval("(append '(a b c d) '(e))")
         }
     }
-
+    
 }
