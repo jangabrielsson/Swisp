@@ -6,39 +6,51 @@
 //
 
 class Parser {
-    var lisp: LispState?
+    typealias Token = Tokenizer.Token
     
-    func nextToken(_ tk: Tokenizer) -> Tokenizer.Token {
-        return tk.next()
+    var lisp: LispState?
+    var pushbackToken: Token?
+    var lastToken: Token?
+    
+    func nextToken(_ tk: Tokenizer) throws -> Token {
+        if let token = pushbackToken {
+            pushbackToken = nil
+            return token
+        }
+        lastToken = try tk.next()
+        return lastToken!
     }
+    
+    func pushback() { pushbackToken = lastToken }
+    
     func pp(tk: Tokenizer) throws -> Expr {
-        var t = nextToken(tk)
+        var t = try nextToken(tk)
         switch t.token {
         case .NUM: return Number(num:Double(t.value) ?? 0)
         case .STR: return Str(str:t.value)
         case .SYM: return lisp!.intern(name:t.value.uppercased())
         case .QUOTE: return try Cons(car: lisp!.QUOTE!,cdr: Cons(car:pp(tk:tk), cdr: lisp!.NIL))
         case .LPAR:
-            t = nextToken(tk)
+            t = try nextToken(tk)
             if t.token == .RPAR {
                 return Lisp.NIL
             } else {
-                tk.pushBack()
+                pushback()
                 let l = try Cons(car: pp(tk:tk),cdr: lisp!.NIL)
                 var p = l
                 while true {
-                    t = nextToken(tk)
+                    t = try nextToken(tk)
                     switch t.token {
                     case .RPAR: return l
                     case .DOT:
                         p.cdrValue = try pp(tk:tk)
-                        t = nextToken(tk)
+                        t = try nextToken(tk)
                         if t.token != .RPAR { throw LispError.parseError("Missing ')'") }
                         return l
                     case .EOF:
                         throw LispError.parseError("Missing ')'")
                     default:
-                        tk.pushBack()
+                        pushback()
                         p.cdrValue = try Cons(car:pp(tk:tk), cdr:lisp!.NIL)
                         p = p.cdr as! Cons
                     }
@@ -49,23 +61,14 @@ class Parser {
         }
     }
     
-    func parse(_ stream: InputStream) throws -> Expr {
-        
-    }
-    
-    func parse(tk: Tokenizer) throws -> Expr {
-        let t = tk.next()
-        if t.token == .EOF {
-            return Lisp.NIL
+    func readExpr(_ stream: InputStream) throws -> Expr {
+        let tk = Tokenizer(stream)
+        let t = try nextToken(tk)
+        if t.token == Tokenizer.TokenType.EOF {
+            return lisp!.NIL
         }
-        tk.pushBack()
+        pushback()
         return try pp(tk:tk)
-    }
-    
-    func parse(str: String) throws -> Expr {
-        let tk = Tokenizer()
-        try tk.tokenize(str:str)
-        return try parse(tk:tk)
     }
 }
 

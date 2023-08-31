@@ -8,6 +8,8 @@
 import Foundation
 
 class Tokenizer {
+    var stream: InputStream
+
     typealias CType = Unicode.Scalar
     
     enum TokenType {
@@ -35,83 +37,48 @@ class Tokenizer {
         public var description: String { return "\(token):\(value)" }
     }
     
-    var tokens = [Token]()
-    var tokenPtr = 0
-    
-    class TState {
-        var buff: [CType] = []
-        var tokens: [Token] = []
-        var tf: ((_ c:Unicode.Scalar?, _ s:TState) throws -> Bool)?
-        func buffToStr() -> String {
-            var bb = ""
-            bb.unicodeScalars.append(contentsOf: buff)
-            return bb
-        }
-        func push(t: TokenType) {
-            tokens.append(Token(token:t,value:buffToStr()))
-            buff = []
-            tf = nil
-        }
-        func push(t: TokenType, v: String) {
-            tokens.append(Token(token:t,value:v))
-            buff = []
-            tf = nil
-        }
+    static func buff2str(_ buff: [CType]) -> String {
+        var bb = ""
+        bb.unicodeScalars.append(contentsOf: buff)
+        return bb
     }
     
-    static func stringTokenizer(c: CType?, s: TState) throws -> Bool {
-        guard let c else {
-            throw LispError.tokenError("Unfinished string")
+    static func stringTokenizer(c: CType, s: InputStream) throws -> Token {
+        var buff = [CType]()
+        while true {
+            if s.isEof() { throw LispError.tokenError("Unfinished string") }
+            if s.peek() == "\"" { _ = s.next(); break }
+            buff.append(s.next())
         }
-        if c == "\"" && s.buff.count > 0 {
-            s.buff.append(c)
-            s.push(t:.STR,v:String(s.buffToStr().dropFirst()))
-        } else {
-            s.buff.append(c)
-        }
-        return true
+        return Token(token:.STR,value:buff2str(buff))
     }
     
-    static func numTokenizer(c: CType?, s: TState) -> Bool {
-        guard let c,c != " " else {
-            s.push(t:.NUM)
-            return false
+    static func numTokenizer(c: CType, s: InputStream) -> Token {
+        var buff = [c]
+        while CharacterSet.decimalDigits.contains(s.peek() ?? " ") {
+            buff.append(s.next())
         }
-        if CharacterSet.decimalDigits.contains(c) {
-            s.buff.append(c)
-            return true
-        } else {
-            s.push(t:.NUM)
-            return false
-        }
+        return Token(token:.NUM,value:buff2str(buff))
     }
     
-    static func symbolTokenizer(c: CType?, s: TState) -> Bool {
-        guard let c,c != " " else {
-            s.push(t:.SYM)
-            return false
+    static func symbolTokenizer(c: CType, s: InputStream) -> Token {
+        var buff = [c]
+        while true {
+            let c = s.peek() ?? " "
+            if c == "_" || c == "*" || c == "-" || c == "&" || CharacterSet.letters.contains(c) {
+                buff.append(s.next())
+            } else { break }
         }
-        if c == "_" || c == "*" || c == "-" || c == "&" || CharacterSet.letters.contains(c) {
-            s.buff.append(c)
-            return true
-        } else {
-            s.push(t:.SYM)
-            return false
-        }
+        return Token(token:.SYM,value:buff2str(buff))
     }
     
-    static func charTokenizer(c: CType?, s: TState) -> Bool {
-        guard let c else {
-            return false
-        }
-        s.push(t:Tokenizer.specToken[c, default:.TOKEN],v:String(c))
-        return true
+    static func charTokenizer(c: CType, s: InputStream) -> Token {
+        return Token(token:Tokenizer.specToken[c, default:.TOKEN],value:String(c))
     }
-    
-    typealias ParseFun = (CType?, TState) throws -> Bool
 
+    typealias ParseFun = (CType, InputStream) throws -> Token
     
-    static func addTokenizerFuns(tm: inout [CType:ParseFun],str:String,tf: @escaping (CType?, TState) throws -> Bool) {
+    static func addTokenizerFuns(tm: inout [CType:ParseFun],str:String,tf: @escaping ParseFun) {
         for c in str.unicodeScalars {
             tm[c] = tf
         }
@@ -125,39 +92,26 @@ class Tokenizer {
         return tm
     }()
     
-    func tokenize(str: String) throws {
-        let state = TState()
-        let s = str.unicodeScalars
-        for c in s {
-            if (c.value > 0xF700) { continue } // Keyboard arrows & friends
-            if let tf = state.tf {
-                if try tf(c,state) { continue }
-            }
-            if c == " " { continue }
+    func next() throws -> Token {
+        
+        while (!stream.isEof()) {
+            while CharacterSet.whitespacesAndNewlines.contains(stream.peek() ?? ".") { _ = stream.next() }
+            if stream.isEof() { return Token(token:.EOF,value:"EOF") }
+            let c = stream.next()
+            if (c == "\n" || c.value > 0xF700) { continue } // Newline & Keyboard arrows & friends
+            if (c == ";") { stream.flushLine(); continue }
             if let tf = Tokenizer.tokenizerLookup[c] {
-                state.tf = tf
-                _ = try tf(c,state)
+                return try tf(c,stream)
             } else {
                 throw LispError.tokenError("Bad token: \(c)")
             }
         }
-        if let tf = state.tf {
-            _ = try tf(nil,state)
-        }
-        tokens = state.tokens
-        tokenPtr = -1
-    }
-
-    func next() -> Token {
-        tokenPtr += 1
-        return tokens.count > tokenPtr ? tokens[tokenPtr] : Token(token:TokenType.EOF,value:"")
+        return Token(token:.EOF,value:"EOF")
     }
     
-    func pushBack() {
-        tokenPtr -= 1
-    }
     
-    init() {
+    init(_ stream: InputStream) {
+        self.stream = stream
     }
 }
 

@@ -7,53 +7,23 @@
 
 import Foundation
 
-print("Hello, World!")
-
-//let tk = Tokenizer()
-//do {
-//    try tk.tokenize(str:"(999 \"hh jj uu\" . goo _goo_kj 77)")
-//} catch {
-//   print("\(error)")
-//}
-//
-//print(tk.tokens)
-//
-//let pp = Parser()
-//let tt = Tokenizer()
-//try tt.tokenize(str:"(a 99 ( 8 9)  c . d)")
-//let expr = try pp.parse(tk:tt)
-//print(expr)
-
-enum File {
-  static func appData(from file: String, in bundle: Bundle = .main) -> Data? {
-    guard let path = bundle.url(forResource: file, withExtension: nil) else {
-      return nil
-    }
-
-    var data: Data?
-    do {
-      data = try Data(contentsOf: path)
-    }
-    catch {
-      print("Error reading data: \(error)")
-    }
-
-    return data
-  }
-}
-
+print("Swisp v0.1")
 
 let Lisp = LispState()
+try _ = Lisp.load(StringInputStream(init_lsp),log:true)
 
+var input = ConsoleInputStream()
+    
 while true {
     print("Swisp>", terminator: "")
-    if let str = readLine() {
-        do {
-            let expr = try Lisp.parse(str)
-            try print(">\(Lisp.eval(expr))")
-        } catch {
-            print("Error: \(error)")
-        }
+    do {
+        let expr = try Lisp.read(input)
+        //try print("<\(expr)")
+        try print(">\(Lisp.eval(expr))")
+    } catch {
+        print("Error: \(error)")
+        input = ConsoleInputStream()
     }
 }
+
 

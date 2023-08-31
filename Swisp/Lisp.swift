@@ -83,6 +83,7 @@ class Number : Expr {
     static var formatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = false
         formatter.maximumFractionDigits = 2
         return formatter
     }
@@ -132,7 +133,7 @@ class Atom : Expr, Hashable {
 class Str : Expr {
     var value: String
     var str: String { value }
-    public var description: String { value }
+    public var description: String { "\"\(value)\"" }
     func isStr() -> Bool {return true }
     func isEq(_ expr: Expr) throws -> Bool {
         return try expr.isStr() && value == expr.str
@@ -171,16 +172,17 @@ typealias ArgsList = [Expr]
 class Func : Expr { // Expr wrapper for a Swift function
     let fun: ((ArgsList,Env) throws -> Expr)
     let name: String
-    let ev: Bool
+    var ev: Bool
+    var isMacro: Bool = false
     func isFunc() -> Bool { return true }
     func call(_ exprList: Expr, _ env: Env) throws -> Expr {
+        var args = [Expr]()
         if exprList.isCons() {
-            let args = try (exprList as! Cons).toArray() { try ev ? $0.eval(env) : $0 }
-            return try fun(args,env)
-        } else if try exprList.isEq(env.lisp.NIL) {
-            return try fun([],env)
+            args = try (exprList as! Cons).toArray() { try ev ? $0.eval(env) : $0 }
         }
-        throw LispError.valueError("Not a function call")
+        let res = try fun(args,env)
+        if env.lisp.trace { print("Func:\(name)(\(args))=\(res)") }
+        return res
     }
     public var description: String { "<builtin:\(name)>" }
     init(fun: @escaping (ArgsList,Env) throws -> Expr, name: String, evaluate: Bool = true) {
@@ -248,6 +250,7 @@ class LispState {
     var TRUE = Atom(name:"TRUE")
     var QUOTE: Atom?
     var parser = Parser()
+    var trace: Bool = false
     
     func intern(name: String) -> Atom {
         if let atom = symbols[name] {
@@ -271,23 +274,44 @@ class LispState {
         parser.lisp = self
         symbols["NIL"] = NIL
         symbols["TRUE"] = TRUE
+        symbols["T"] = TRUE
         QUOTE = define(name:"QUOTE")
         setupBuiltins()
     }
     
-    func readExpr(_ stream: InputStream) throws -> Expr {
-        return try parser.parse(stream)
+    func readExpr(_ stream: InputStream) throws -> Expr? {
+        return try parser.readExpr(stream)
     }
     
-    func parse(_ str: String) throws -> Expr {
-        return try parser.parse(str:str)
+    func load(_ stream: InputStream, log: Bool = false) throws -> (Bool,String) {
+        do {
+            while true {
+                if let expr = try readExpr(stream) {
+                    if try expr.isEq(NIL) { break }
+                    print("LR<\(expr)")
+                    let res = try eval(expr)
+                    if log {
+                        print("\(res)")
+                    }
+                } else { break }
+            }
+        } catch {
+            return (false,"\(error)")
+        }
+        return (true,"ok")
     }
+    
+    func read(_ stream: InputStream) throws -> Expr {
+        return try parser.readExpr(stream)
+    }
+    
     func eval(_ expr: Expr) throws -> Expr {
         return try expr.eval(Env(self))
     }
     
     func eval(_ str: String) throws -> Expr {
-        return try eval(parser.parse(str:str))
+        let stream = StringInputStream(str)
+        return try eval(parser.readExpr(stream))
     }
     
     func eq(_ expr1: Expr, _ expr2: Expr) throws -> Bool {
@@ -298,6 +322,14 @@ class LispState {
         if try eq(expr1,expr2) { return true }
         if !(expr1.isCons() && expr2.isCons()) { return false }
         return try equal(expr1.car,expr2.car) && equal(expr1.cdr,expr2.cdr)
+    }
+    
+    func arrayToList(_ exprs: some Sequence<Expr>, offset: Int = 0, cont:((Expr) throws -> Expr) = {$0}) throws -> Expr {
+        var p = NIL as Expr
+        for e in exprs.reversed() {
+            p = try Cons(car:cont(e),cdr:p)
+        }
+        return p
     }
 }
 

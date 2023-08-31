@@ -8,37 +8,66 @@
 import Foundation
 
 protocol InputStream {
-    func nextChar() -> CType
+    func next() -> CType
+    func peek() -> CType?
+    func flushLine()
     func isEof() -> Bool
 }
 
 typealias CType = Unicode.Scalar
 
 class StringInputStream : InputStream {
-    var str: String.UnicodeScalarView
+    var lines: [String.UnicodeScalarView]
     var s: String.Index
     var e: String.Index
     
-    func nextChar() -> CType {
-        let c = str[s]
-        s = str.index(after:s)
+    private func read() {
+        _ = lines.removeFirst()
+        if !isEof() {
+            s = lines.first!.startIndex
+            e = lines.first!.endIndex
+        }
+    }
+    
+    func next() -> CType {
+        let c = lines.first![s]
+        s = lines.first!.index(after:s)
         return c
     }
     
-    func isEof() -> Bool {
-        return s < e
+    func peek() -> CType? {
+        if isEof() { return nil }
+        if s >= e { read() }
+        if isEof() { return nil }
+        return lines.first![s]
     }
+
+    func flushLine() {
+        read()
+    }
+    
+    func isEof() -> Bool {
+        return lines.isEmpty
+    }
+    
     init(_ str: String) {
-        self.str = str.unicodeScalars
-        s = str.startIndex
-        e = str.endIndex
+        lines = str.split(whereSeparator: \.isNewline).map{ String($0).unicodeScalars }
+        s = lines.first!.startIndex
+        e = lines.first!.endIndex
 
     }
 }
 
-class FileInputStream : InputStream {
-    func nextChar() -> CType {
+class FileInputStream : InputStream { // ToDo
+    func next() -> CType {
         return CType(0)
+    }
+
+    func flushLine() {
+    }
+    
+    func peek() -> CType? {
+        return isEof() ? nil : CType(0)
     }
     
     func isEof() -> Bool {
@@ -54,20 +83,33 @@ class ConsoleInputStream : InputStream {
     var s: String.Index
     var e: String.Index
     
-    func nextChar() -> CType {
+    private func read() {
+        str = readLine(strippingNewline:false)!.unicodeScalars
+        s = str.startIndex
+        e = str.endIndex
+    }
+    
+    func flushLine() {
+        read()
+    }
+    
+    func next() -> CType {
         if s < e {
             let c = str[s]
             s = str.index(after:s)
             return c
         }
-        str = readLine()!.unicodeScalars
-        s = str.startIndex
-        e = str.endIndex
-        return nextChar()
+        read()
+        return next()
+    }
+    
+    func peek() -> CType? {
+        return isEof() ? nil : str[s]
     }
     
     func isEof() -> Bool {
-        return false
+        if s >= e { read() }
+        return s >= e
     }
     
     init() {
