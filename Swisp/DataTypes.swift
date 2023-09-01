@@ -21,7 +21,7 @@ protocol Expr: CustomStringConvertible {
     func isNum() -> Bool
     func isStr() -> Bool
     func isNIL() -> Bool
-    func isEq(_ expr: Expr) throws -> Bool
+    func isEq(_ expr: Expr) -> Bool
 }
 
 extension Expr {
@@ -62,7 +62,7 @@ extension Expr {
     func isStr() -> Bool { return false }
     func isNIL() -> Bool { return false }
     func isFunc() -> Bool { return false }
-    func isEq(_ expr: Expr) throws -> Bool {
+    func isEq(_ expr: Expr) -> Bool {
         return expr as AnyObject === self as AnyObject
     }
     func eval(_ env: Env) throws -> Expr {
@@ -87,8 +87,11 @@ class Number : Expr {
         return "\(formattedValue)"
     }
     func isNum() -> Bool { return true }
-    func isEq(_ expr: Expr) throws -> Bool {
-        return try expr.isNum() && val == expr.num
+    func isEq(_ expr: Expr) -> Bool {
+        if let e = expr as? Number {
+            return e.val == val
+        }
+        else { return false }
     }
     init(num: Double) {
         val = num
@@ -129,8 +132,11 @@ class Str : Expr {
     var str: String { value }
     public var description: String { "\"\(value)\"" }
     func isStr() -> Bool {return true }
-    func isEq(_ expr: Expr) throws -> Bool {
-        return try expr.isStr() && value == expr.str
+    func isEq(_ expr: Expr) -> Bool {
+        if let e = expr as? Str {
+            return e.value == value
+        }
+        else { return false }
     }
     init(str: String) {
         self.value = str
@@ -138,7 +144,7 @@ class Str : Expr {
 }
 
 class Cons : Expr {
-    let carValue: Expr
+    var carValue: Expr
     var cdrValue: Expr
     var car: Expr { return carValue }
     var cdr: Expr { return cdrValue }
@@ -198,6 +204,7 @@ extension Cons: Sequence {
     }
     
     func eval(_ env: Env) throws -> Expr {
+        //print("CALL:\(carValue)")
         let f = try carValue.eval(env)
         return try f.call(cdrValue,env)
     }

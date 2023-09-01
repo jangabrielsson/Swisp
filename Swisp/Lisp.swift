@@ -13,9 +13,25 @@ enum LispError: Error {
     case parseError(String)
 }
 
+class LispFiles {
+    var  fileMap = [String:String]()
+    static let shared = LispFiles()
+    func register(_ path: String, _ content: String) {
+        fileMap.updateValue(content, forKey: path)
+    }
+    func read(_ path: String) -> String? {
+        return fileMap[path]
+    }
+    private init() {
+        register("/init.lsp",__init_lsp)
+        register("/backquote.lsp",__backquote_lsp)
+    }
+}
+
 class Env {
     var lisp: LispState
     var bindings = [[Atom:Expr]]()
+    var currInput: InputStream?
     
     func push() {
         bindings.append([:])
@@ -52,8 +68,11 @@ class LispState {
     var NIL = Atom(name:"NIL")
     var TRUE = Atom(name:"TRUE")
     var QUOTE: Atom?
+    var OPTIONAL = Atom(name:"&OPTIONAL")
+    var REST = Atom(name:"&REST")
     var parser = Parser()
     var trace: Bool = false
+    var readMacros = [String:Func]()
     
     func intern(name: String) -> Atom {
         if let atom = symbols[name] {
@@ -71,20 +90,21 @@ class LispState {
         intern(name:name)
     }
     
-    init(loadLibs:Bool = true) {
+    init(loadLib:Bool = true) {
         NIL.set(NIL)
         TRUE.set(TRUE)
         parser.lisp = self
         symbols["NIL"] = NIL
         symbols["TRUE"] = TRUE
+        symbols["&OPTIONAL"] = OPTIONAL
+        symbols["&REST"] = REST
         define(name:"T").set(TRUE)
         define(name:"FN").set(intern(name:"LAMBDA"))
         QUOTE = define(name:"QUOTE")
         setupBuiltins()
-        if loadLibs {
-            do {
-                try _ = load(StringInputStream(init_lsp))
-            }  catch {
+        if loadLib {
+            if case (false,let msg) = load("/init.lsp") {
+                print("\(msg)")
             }
         }
     }
@@ -93,19 +113,25 @@ class LispState {
         return try parser.readExpr(stream)
     }
     
-    func load(_ stream: InputStream, log: Bool = false) throws -> (Bool,String) {
+    func load(_ path: String, log: Bool = false) -> (Bool,String) {
+        let content = LispFiles.shared.fileMap[path]!
+        return load(StringInputStream(content),log:log)
+    }
+        
+    func load(_ stream: InputStream, log: Bool = false) -> (Bool,String) {
         do {
             while true {
                 if let expr = try readExpr(stream) {
-                    if try expr.isEq(NIL) { break }
+                    if expr.isEq(NIL) { break }
                     //print("LR<\(expr)")
                     let res = try eval(expr)
-                    if log {
+                    if true {
                         print("\(res)")
                     }
                 } else { break }
             }
         } catch {
+            if true { print("\(error)") }
             return (false,"\(error)")
         }
         return (true,"ok")
@@ -125,7 +151,7 @@ class LispState {
     }
     
     func eq(_ expr1: Expr, _ expr2: Expr) throws -> Bool {
-        return try expr1.isEq(expr2)
+        return expr1.isEq(expr2)
     }
     
     func equal(_ expr1: Expr, _ expr2: Expr) throws -> Bool {

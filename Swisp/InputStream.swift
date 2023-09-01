@@ -12,6 +12,7 @@ protocol InputStream {
     func peek() -> CType?
     func flushLine()
     func isEof() -> Bool
+    var line: Int { get }
 }
 
 typealias CType = Unicode.Scalar
@@ -20,10 +21,13 @@ class StringInputStream : InputStream {
     var lines: [String.UnicodeScalarView]
     var s: String.Index
     var e: String.Index
+    var line: Int
     
     private func read() {
         _ = lines.removeFirst()
         if !isEof() {
+            line += 1
+            //print("LINE:\(line) - \(lines.first!)")
             s = lines.first!.startIndex
             e = lines.first!.endIndex
         }
@@ -51,14 +55,16 @@ class StringInputStream : InputStream {
     }
     
     init(_ str: String) {
-        lines = str.split(whereSeparator: \.isNewline).map{ String($0).unicodeScalars }
+        lines = str.components(separatedBy: CharacterSet.newlines).map{ (String($0)+"\n").unicodeScalars }
         s = lines.first!.startIndex
         e = lines.first!.endIndex
-
+        line = 1
+        //print("LINE:\(line) - \(lines.first!)")
     }
 }
 
 class FileInputStream : InputStream { // ToDo
+    var line: Int
     func next() -> CType {
         return CType(0)
     }
@@ -75,6 +81,7 @@ class FileInputStream : InputStream { // ToDo
     }
     
     init() {
+        line = 1
     }
 }
 
@@ -82,6 +89,7 @@ class ConsoleInputStream : InputStream {
     var str: String.UnicodeScalarView = "".unicodeScalars
     var s: String.Index
     var e: String.Index
+    var line: Int = 1
     
     private func read() {
         str = readLine(strippingNewline:false)!.unicodeScalars

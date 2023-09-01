@@ -10,7 +10,6 @@ import Foundation
 print("Swisp v0.1")
 
 let Lisp = LispState()
-try _ = Lisp.load(StringInputStream(init_lsp),log:true)
 
 var input = ConsoleInputStream()
     

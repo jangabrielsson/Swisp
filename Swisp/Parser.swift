@@ -28,7 +28,14 @@ class Parser {
         switch t.token {
         case .NUM: return Number(num:Double(t.value) ?? 0)
         case .STR: return Str(str:t.value)
-        case .SYM: return lisp!.intern(name:t.value.uppercased())
+        case .SYM:
+            if lisp!.readMacros[t.value] != nil {
+                let fun = lisp!.readMacros[t.value]!.fun
+                let env = Env(lisp!)
+                env.currInput = tk.stream
+                return try fun([],env)
+            }
+            return lisp!.intern(name:t.value.uppercased())
         case .QUOTE: return try Cons(car: lisp!.QUOTE!,cdr: Cons(car:pp(tk:tk), cdr: lisp!.NIL))
         case .LPAR:
             t = try nextToken(tk)
@@ -45,10 +52,10 @@ class Parser {
                     case .DOT:
                         p.cdrValue = try pp(tk:tk)
                         t = try nextToken(tk)
-                        if t.token != .RPAR { throw LispError.parseError("Missing ')'") }
+                        if t.token != .RPAR { throw LispError.parseError("Missing ')' at line: \(t.line)") }
                         return l
                     case .EOF:
-                        throw LispError.parseError("Missing ')'")
+                        throw LispError.parseError("Missing ')' at .line: \(t.line)")
                     default:
                         pushback()
                         p.cdrValue = try Cons(car:pp(tk:tk), cdr:lisp!.NIL)
@@ -56,8 +63,15 @@ class Parser {
                     }
                 }
             }
-        case .TOKEN: return lisp!.intern(name:t.value)
-        default: throw LispError.parseError("Bad expr")
+        case .TOKEN:
+            if lisp!.readMacros[t.value] != nil {
+                let fun = lisp!.readMacros[t.value]!.fun
+                let env = Env(lisp!)
+                env.currInput = tk.stream
+                return try fun([],env)
+            }
+            return lisp!.intern(name:t.value)
+        default: throw LispError.parseError("Bad expr at line: \(t.line)")
         }
     }
     

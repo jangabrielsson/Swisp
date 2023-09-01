@@ -1,13 +1,4 @@
-//
-//  Init.swift
-//  Swisp
-//
-//  Created by Jan Gabrielsson on 2023-08-30.
-//
-
-import Foundation
-
-let init_lsp = """
+let __init_lsp = """
 ;;;; Standard lisp functions
 (setq *trace-level* 0)
 (setq *log-level* 2)
@@ -104,11 +95,18 @@ let init_lsp = """
 (defmacro error (format &rest msgs)
    (list '*error* (cons 'strformat (cons format msgs))))
 
-"""
+(readmacro "`" (lambda() (list 'backquote (read))))
+(readmacro "," (lambda()
+    (let* ((c (peekChar())))
+       (if (eq c ".")
+           (progn (skipChar) (list '*back-comma-dot* (read)))
+           (if (eq c "@") (progn (skipChar) (list '*back-comma-at* (read)))
+                          (list '*back-comma* (read))))
+    )
+  )
+)
 
-let other_init = """
-
-(require 'backquote "lib/Lisp/backquote.lsp")
+(require 'backquote "/backquote.lsp")
 
 (defmacro unless (condition &rest body)
   `(if (not ,condition) (progn ,@body)))
@@ -216,3 +214,4 @@ let other_init = """
     (toploop)
 )
 """
+

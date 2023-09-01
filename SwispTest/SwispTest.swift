@@ -10,7 +10,7 @@ import Swisp
 import UnitTestingSwisp
 
 final class SwispTest: XCTestCase {
-    let Lisp = LispState(loadLibs: true)
+    let Lisp = LispState()
     
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
