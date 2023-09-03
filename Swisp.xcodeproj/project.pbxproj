@@ -76,6 +76,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E6D41A402AA4DB0D004E5A67 /* lisp code */ = {
+			isa = PBXGroup;
+			children = (
+				E6D62BF32A9F96A5004A4F63 /* Init.swift */,
+				E6D41A3C2AA3D18C004E5A67 /* Test.swift */,
+				E6D41A392AA1CD45004E5A67 /* Backquote.swift */,
+			);
+			path = "lisp code";
+			sourceTree = "<group>";
+		};
 		E6D62B952A9E27EC004A4F63 = {
 			isa = PBXGroup;
 			children = (
@@ -104,9 +114,7 @@
 				E6D62BA82A9E2803004A4F63 /* Parser.swift */,
 				E6D62BE32A9F850B004A4F63 /* InputStream.swift */,
 				E6D41A362AA0CE7D004E5A67 /* DataTypes.swift */,
-				E6D62BF32A9F96A5004A4F63 /* Init.swift */,
-				E6D41A3C2AA3D18C004E5A67 /* Test.swift */,
-				E6D41A392AA1CD45004E5A67 /* Backquote.swift */,
+				E6D41A402AA4DB0D004E5A67 /* lisp code */,
 			);
 			path = Swisp;
 			sourceTree = "<group>";
