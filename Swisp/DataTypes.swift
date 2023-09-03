@@ -13,7 +13,7 @@ protocol Expr: CustomStringConvertible {
     var str: String { get throws }
     var num: Double { get throws }
     var binding: Expr { get throws }
-    func call(_ expr: Expr, _ env: Env) throws -> Expr
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr
     func eval(_ env: Env) throws -> Expr
     func set(_ value: Expr) throws
     func isAtom() -> Bool
@@ -27,34 +27,34 @@ protocol Expr: CustomStringConvertible {
 extension Expr {
     var str: String {
         get throws {
-            throw LispError.valueError("Not a string")
+            throw LispError.value("Not a string")
         }
     }
     var num: Double {
         get throws {
-            throw LispError.valueError("'\(self)' not a number")
+            throw LispError.value("'\(self)' not a number")
         }
     }
     var car: Expr {
         get throws {
-            throw LispError.valueError("'\(self)' not a cons")
+            throw LispError.value("'\(self)' not a cons")
         }
     }
     var cdr: Expr {
         get throws {
-            throw LispError.valueError("'\(self)' not a cons")
+            throw LispError.value("'\(self)' not a cons")
         }
     }
     var binding: Expr {
         get throws {
-            throw LispError.valueError("Not an atom \((self))")
+            throw LispError.value("Not an atom \((self))")
         }
     }
-    func call(_ expr: Expr, _ env: Env) throws -> Expr {
-        throw LispError.valueError("\(self) not a function")
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr {
+        throw LispError.value("\(env.lastCall ?? self) not a function")
     }
     
-    func set(_ value: Expr) throws { throw LispError.valueError("Not an atom") }
+    func set(_ value: Expr) throws { throw LispError.value("Not an atom") }
     
     func isAtom() -> Bool { return false }
     func isCons() -> Bool { return false }
@@ -78,7 +78,7 @@ class Number : Expr {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.usesGroupingSeparator = false
-        formatter.maximumFractionDigits = 2
+        //formatter.maximumFractionDigits = 2
         return formatter
     }
     public var description: String {
@@ -86,6 +86,7 @@ class Number : Expr {
         let formattedValue = Number.formatter.string(from: number)!
         return "\(formattedValue)"
     }
+    func isAtom() -> Bool {return true }
     func isNum() -> Bool { return true }
     func isEq(_ expr: Expr) -> Bool {
         if let e = expr as? Number {
@@ -110,7 +111,7 @@ class Atom : Expr, Hashable {
         if let val = env.lookup(self) {
             return val
         }
-        guard val != nil else { throw LispError.valueError("Atom \(self) not bound") }
+        guard val != nil else { throw LispError.value("Atom \(self) not bound") }
         return val!
     }
     func isAtom() -> Bool {return true }
@@ -132,6 +133,7 @@ class Str : Expr {
     var str: String { value }
     public var description: String { "\"\(value)\"" }
     func isStr() -> Bool {return true }
+    func isAtom() -> Bool {return true }
     func isEq(_ expr: Expr) -> Bool {
         if let e = expr as? Str {
             return e.value == value
@@ -169,26 +171,43 @@ class Cons : Expr {
 
 typealias ArgsList = [Expr]
 
+enum FuncType : String {
+    case builtin = "builtin"
+    case fun = "fun"
+    case macro  = "macro"
+}
+
 class Func : Expr { // Expr wrapper for a Swift function
-    let fun: ((ArgsList,Env) throws -> Expr)
-    let name: String
-    var ev: Bool
-    var isMacro: Bool = false
+    var name: String
+    var special: Bool
+    var type: FuncType = .builtin
+    var nargs: (ParamType,Int,Int)
     func isFunc() -> Bool { return true }
-    func call(_ exprList: Expr, _ env: Env) throws -> Expr {
+    let fun: ((ArgsList,Env) throws -> Expr)
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr {
         var args = [Expr]()
         if let list = exprList as? Cons {
-            args = try list.toArray() { try ev ? $0.eval(env) : $0 }
+            args = try list.toArray() { try special ? $0 : $0.eval(env) }
         }
-        let res = try fun(args,env)
-        if env.lisp.trace { print("Func:\(name)(\(args))=\(res)") }
+        switch nargs {
+        case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
+        case (.optional,let min, let max): if args.count < min && args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
+        case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }
+        }
+        var res = try fun(args,env)
+        if type == .macro {            // macros evaluates their results (macroexpand)
+            if env.lisp.trace { print("MACROEXPAND:\(res)") }
+            res = try res.eval(env)
+        }
+        //if env.lisp.trace { print("Func:\(name)(\(args))=\(res)") }
         return res
     }
-    public var description: String { "<builtin:\(name)>" }
-    init(fun: @escaping (ArgsList,Env) throws -> Expr, name: String, evaluate: Bool = true) {
+    public var description: String { "<\(type.rawValue):\(name)>" }
+    init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping (ArgsList,Env) throws -> Expr) {
         self.fun = fun
         self.name = name
-        self.ev = evaluate
+        self.special = special
+        self.nargs = args
     }
 }
 
@@ -204,9 +223,13 @@ extension Cons: Sequence {
     }
     
     func eval(_ env: Env) throws -> Expr {
-        //print("CALL:\(carValue)")
+        env.lastCall = carValue
+        if env.lisp.trace { print("CALL:\(carValue)\(cdrValue)") }
         let f = try carValue.eval(env)
-        return try f.call(cdrValue,env)
+        env.lastCall = nil
+        let res = try f.call(cdrValue,self,env)
+        if env.lisp.trace { print("RETURN:\(carValue)\(cdrValue)=\(res)") }
+        return res
     }
 }
 

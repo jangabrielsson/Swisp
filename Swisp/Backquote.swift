@@ -159,15 +159,17 @@ let __backquote_lsp = """
 (defconst bq-dot-flag 'unquote-nconc-splicing)
 
 (defun bq-process (form)
+  (print "T:" form)
   (let* ((flag-result (bq-process-2 form))
            (flag (car flag-result))
            (result (cdr flag-result)))
+    (print "R:" flag "/" result)
     (cond ((eq flag bq-at-flag)
        (error ",@ after ` in form: %s" form))
       ((eq flag bq-dot-flag)
        (error ",. after ` in form: %s" form))
       (t
-       (bq-process-1 flag result)))))
+       (print "E:" (bq-process-1 flag result))))))
 
 ;;; ----------------------------------------------------------------
 
@@ -194,7 +196,7 @@ let __backquote_lsp = """
      (cons bq-at-flag (nth 1 code)))
     ((eq (car code) bq-dot-marker)
      (cons bq-dot-flag (nth 1 code)))
-    ((eq (car code) bq-comma-marker)
+    ((eq (car code) bq-comma-marker) (print "HERE")
      (bq-comma (nth 1 code)))
     ((or (eq (car code) bq-backquote-marker)
          (eq (car code) bq-backtick-marker))    ; old lossage
@@ -286,4 +288,12 @@ let __backquote_lsp = """
       (setq args (cdr args)))
     result))
 """
-
+//
+//(let ((a '(1 2 3)))
+//   (while a
+//       (print (car a))
+//       (setq a (cdr a))))
+//
+(let ((a '(1 2 3)))
+   (setq a (cdr a))
+   (print a))

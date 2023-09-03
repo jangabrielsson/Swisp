@@ -22,19 +22,24 @@ class Parser {
     }
     
     func pushback() { pushbackToken = lastToken }
-    
+    func readMacro(_ t:Token, _ tk: Tokenizer) throws -> Expr? {
+        if lisp!.readMacros[t.value] != nil {
+            let fun = lisp!.readMacros[t.value]!.fun
+            let env = Env(lisp!)
+            env.currInput = tk.stream
+            let expr = try fun([],env)
+            //print("READMACRO:\(t.value) = \(expr)")
+            return expr
+        }
+        return nil
+    }
     func pp(tk: Tokenizer) throws -> Expr {
         var t = try nextToken(tk)
         switch t.token {
         case .NUM: return Number(num:Double(t.value) ?? 0)
         case .STR: return Str(str:t.value)
         case .SYM:
-            if lisp!.readMacros[t.value] != nil {
-                let fun = lisp!.readMacros[t.value]!.fun
-                let env = Env(lisp!)
-                env.currInput = tk.stream
-                return try fun([],env)
-            }
+            if let rexpr = try readMacro(t,tk) { return rexpr }
             return lisp!.intern(name:t.value.uppercased())
         case .QUOTE: return try Cons(car: lisp!.QUOTE!,cdr: Cons(car:pp(tk:tk), cdr: lisp!.NIL))
         case .LPAR:
@@ -52,10 +57,10 @@ class Parser {
                     case .DOT:
                         p.cdrValue = try pp(tk:tk)
                         t = try nextToken(tk)
-                        if t.token != .RPAR { throw LispError.parseError("Missing ')' at line: \(t.line)") }
+                        if t.token != .RPAR { throw LispError.parse("Missing ')' at line: \(t.line)") }
                         return l
                     case .EOF:
-                        throw LispError.parseError("Missing ')' at .line: \(t.line)")
+                        throw LispError.parse("Missing ')' at .line: \(t.line)")
                     default:
                         pushback()
                         p.cdrValue = try Cons(car:pp(tk:tk), cdr:lisp!.NIL)
@@ -64,14 +69,9 @@ class Parser {
                 }
             }
         case .TOKEN:
-            if lisp!.readMacros[t.value] != nil {
-                let fun = lisp!.readMacros[t.value]!.fun
-                let env = Env(lisp!)
-                env.currInput = tk.stream
-                return try fun([],env)
-            }
+            if let rexpr = try readMacro(t,tk) { return rexpr }
             return lisp!.intern(name:t.value)
-        default: throw LispError.parseError("Bad expr at line: \(t.line)")
+        default: throw LispError.parse("Bad expr at line: \(t.line)")
         }
     }
     

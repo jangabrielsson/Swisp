@@ -47,7 +47,7 @@ class Tokenizer {
     static func stringTokenizer(c: CType, s: InputStream) throws -> Token {
         var buff = [CType]()
         while true {
-            if s.isEof() { throw LispError.tokenError("Unfinished string at line: \(s.line)") }
+            if s.isEof() { throw LispError.token("Unfinished string at line: \(s.line)") }
             if s.peek() == "\"" { _ = s.next(); break }
             buff.append(s.next())
         }
@@ -104,7 +104,7 @@ class Tokenizer {
             if let tf = Tokenizer.tokenizerLookup[c] {
                 return try tf(c,stream)
             } else {
-                throw LispError.tokenError("Bad token: \(c) at line:\(stream.line)")
+                throw LispError.token("Bad token: \(c) at line:\(stream.line)")
             }
         }
         return Token(token:.EOF,value:"EOF",line:stream.line)

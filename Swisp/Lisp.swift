@@ -8,9 +8,11 @@
 import Foundation
 
 enum LispError: Error {
-    case valueError(String)
-    case tokenError(String)
-    case parseError(String)
+    case value(String)
+    case param(String)
+    case syntax(String)
+    case token(String)
+    case parse(String)
 }
 
 class LispFiles {
@@ -25,6 +27,7 @@ class LispFiles {
     private init() {
         register("/init.lsp",__init_lsp)
         register("/backquote.lsp",__backquote_lsp)
+        register("/test.lsp",__test_lsp)
     }
 }
 
@@ -32,6 +35,7 @@ class Env {
     var lisp: LispState
     var bindings = [[Atom:Expr]]()
     var currInput: InputStream?
+    var lastCall: Expr?
     
     func push() {
         bindings.append([:])
@@ -50,9 +54,9 @@ class Env {
         return nil
     }
     func set(_ atom: Atom, _ expr: Expr) {
-        for var be in bindings.reversed() {
-            if be[atom] != nil {
-                be.updateValue(expr,forKey:atom)
+        for i in stride(from:bindings.count-1,through:0,by:-1) {
+            if bindings[i][atom] != nil {
+                bindings[i].updateValue(expr,forKey:atom)
                 return
             }
         }
@@ -66,7 +70,7 @@ class Env {
 class LispState {
     var symbols : [String : Atom] = [:]
     var NIL = Atom(name:"NIL")
-    var TRUE = Atom(name:"TRUE")
+    var TRUE = Atom(name:"T")
     var QUOTE: Atom?
     var OPTIONAL = Atom(name:"&OPTIONAL")
     var REST = Atom(name:"&REST")
@@ -83,24 +87,26 @@ class LispState {
         return atom
     }
     
-    func define(name:String, evaluate: Bool = true, fun:@escaping (ArgsList,Env) throws -> Expr) {
-        intern(name:name).set(Func(fun:fun,name:name,evaluate:evaluate))
+    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping (ArgsList,Env) throws -> Expr) {
+        let funw = Func(name:name,args:args,special:special,fun:fun)
+        intern(name:name).set(funw)
     }
+        
     func define(name:String) -> Atom {
         intern(name:name)
     }
     
-    init(loadLib:Bool = true) {
+    init(loadLib:Bool = true, trace:Bool = false) {
         NIL.set(NIL)
         TRUE.set(TRUE)
         parser.lisp = self
         symbols["NIL"] = NIL
-        symbols["TRUE"] = TRUE
+        symbols["T"] = TRUE
         symbols["&OPTIONAL"] = OPTIONAL
         symbols["&REST"] = REST
-        define(name:"T").set(TRUE)
-        define(name:"FN").set(intern(name:"LAMBDA"))
+        define(name:"TRUE").set(TRUE)
         QUOTE = define(name:"QUOTE")
+        self.trace = trace
         setupBuiltins()
         if loadLib {
             if case (false,let msg) = load("/init.lsp") {

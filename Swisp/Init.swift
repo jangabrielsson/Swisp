@@ -2,16 +2,20 @@ let __init_lsp = """
 ;;;; Standard lisp functions
 (setq *trace-level* 0)
 (setq *log-level* 2)
+(defun test() (readfile "/test.lsp"))
 
 (defmacro defparameter(var val)(list 'setq var val))
 (defmacro defvar(var val)(list 'setq var val))
 (defmacro defconst(var val)(list 'setq var val))
 
+(defun function(x) x)
+(defun apply(x l) (eval (cons x l)))
+
 (defun null(x) (eq x nil))
 (defun list (&rest l) l)
 (defun not(x) (if x nil t))
 (defmacro and(x y) (list 'if x y nil))
-(defmacro or(x y) (list 'if x x y)) ;; redefined later
+;;(defmacro or(x y) (list 'if x x y)) ;; redefined later
 
 (defun equal(x y)
    (if (eq x y) t
@@ -25,12 +29,12 @@ let __init_lsp = """
 
 ;;; (cond(test1 res1)(test2 res2)...) -> (if test1 res1 (if (test2 res2 ...)))
 
-(defmacro cond (&rest body)
-   (let* ((fc (fn (bl)
-                  (if (eq bl nil) nil
-                         (list 'if (car (car bl)) (cons 'progn (cdr (car bl)))
-                                  (fc (cdr bl)))))))
-       (fc body)))
+;(defmacro cond (&rest body)
+;   (let* ((fc (fn (bl)
+;                  (if (eq bl nil) nil
+;                         (list 'if (car (car bl)) (cons 'progn (cdr (car bl)))
+;                                  (fc (cdr bl)))))))
+;       (fc body)))
 
 (defun append(x y)
   (if (eq x '()) y
@@ -47,6 +51,7 @@ let __init_lsp = """
            (memq a (cdr l)))))
  
 (defvar *libraries* nil)
+
 (defun provide (lib)
     (if (memq lib *libraries*) nil
         (setq *libraries* (cons lib *libraries*))))
@@ -97,7 +102,7 @@ let __init_lsp = """
 
 (readmacro "`" (lambda() (list 'backquote (read))))
 (readmacro "," (lambda()
-    (let* ((c (peekChar())))
+    (let* ((c (peekChar)))
        (if (eq c ".")
            (progn (skipChar) (list '*back-comma-dot* (read)))
            (if (eq c "@") (progn (skipChar) (list '*back-comma-at* (read)))
@@ -111,7 +116,7 @@ let __init_lsp = """
 (defmacro unless (condition &rest body)
   `(if (not ,condition) (progn ,@body)))
 
-(defmacro or(x y) (let ((s (gensym))) `(let ((,s ,x)) (if ,s ,s ,y))))
+;;(defmacro or(x y) (let ((s (gensym))) `(let ((,s ,x)) (if ,s ,s ,y))))
 (defmacro first(x)`(car ,x))
 (defmacro rest(x)`(cdr ,x))
 (defmacro second(x)`(car (cdr ,x)))
@@ -186,7 +191,7 @@ let __init_lsp = """
 ;   #'(lambda(stream char)
 ;      (list 'backquote (read stream t nil t))))
 
-(defun verify() (readfile "lib/Lisp/verify.lsp"))
+;;(defun verify() (readfile "lib/Lisp/verify.lsp"))
 
 (defmacro time (expr)
   (let ((tt (gensym)) (res (gensym)))
@@ -195,7 +200,7 @@ let __init_lsp = """
 (defun format (stream format &rest args)
     (print (apply strformat (cons format args))))
 
-(defvar * nil)
+(defvar *0 nil)
 (defvar ** nil)
 (defvar *** nil)
 

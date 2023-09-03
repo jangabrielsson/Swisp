@@ -55,22 +55,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "06060C9B-6B23-4383-89B9-D220A0D1D242"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "457EF392-10D5-459D-BA7D-5D274E50D304"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -234,8 +218,8 @@
             filePath = "Swisp/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "27"
-            endingLineNumber = "27"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
             landmarkName = "pp(tk:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -250,8 +234,8 @@
             filePath = "Swisp/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "41"
-            endingLineNumber = "41"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
             landmarkName = "pp(tk:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -266,8 +250,8 @@
             filePath = "Swisp/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
             landmarkName = "pp(tk:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -282,74 +266,10 @@
             filePath = "Swisp/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
             landmarkName = "pp(tk:)"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "C6A45236-D657-4DAC-9D5C-116FD84B1DE4"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "13"
-            endingLineNumber = "13"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "68CD6469-BDF2-4C6E-9168-0F61A36FFF84"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
-            landmarkName = "unknown"
-            landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "68CD6469-BDF2-4C6E-9168-0F61A36FFF84 - ffe31c5f084ab948"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swisp.lambda(Swift.Array&lt;Swisp.Expr&gt;, Swisp.Env) throws -&gt; Swisp.Expr"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Builtins.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "17"
-                  endingLineNumber = "17"
-                  offsetFromSymbolStart = "592">
-               </Location>
-               <Location
-                  uuid = "68CD6469-BDF2-4C6E-9168-0F61A36FFF84 - 6edea11c9d5a9d4f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Swisp.Expr) -&gt; Swisp.Atom in Swisp.lambda(Swift.Array&lt;Swisp.Expr&gt;, Swisp.Env) throws -&gt; Swisp.Expr"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Builtins.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "17"
-                  endingLineNumber = "17"
-                  offsetFromSymbolStart = "36">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -362,25 +282,9 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
             landmarkName = "set(_:_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3FBB607C-9965-4FCA-A155-DD8EDCD293D9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "198"
-            endingLineNumber = "198"
-            landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -490,8 +394,8 @@
             filePath = "Swisp/Parser.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "45"
-            endingLineNumber = "45"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
             landmarkName = "pp(tk:)"
             landmarkType = "7">
             <Locations>
@@ -618,8 +522,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
             <Locations>
@@ -785,134 +689,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "527F44C8-C8EE-4E8D-B0C2-1DC371F8A3F9"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "258"
-            endingLineNumber = "258"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "88190FE9-1DAB-4B31-BFF9-4D554DAF9853"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "275"
-            endingLineNumber = "275"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "63F615CD-7EF2-4D77-AABB-1D2D6AE23542"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "267"
-            endingLineNumber = "267"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "D4130161-105D-4C15-9D87-CC8000E5F838"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B6A448BC-33F0-45B4-8095-EC1E0D1DD543"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "B6A448BC-33F0-45B4-8095-EC1E0D1DD543 - c818cec013142499"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #16 (Swift.Array&lt;Swisp.Expr&gt;, Swisp.Env) throws -&gt; Swisp.Expr in Swisp.LispState.setupBuiltins() -&gt; ()"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Builtins.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "118"
-                  endingLineNumber = "118"
-                  offsetFromSymbolStart = "1160">
-               </Location>
-               <Location
-                  uuid = "B6A448BC-33F0-45B4-8095-EC1E0D1DD543 - c818cec013142499"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #16 (Swift.Array&lt;Swisp.Expr&gt;, Swisp.Env) throws -&gt; Swisp.Expr in Swisp.LispState.setupBuiltins() -&gt; ()"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Builtins.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "118"
-                  endingLineNumber = "118"
-                  offsetFromSymbolStart = "1020">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F3A46067-A29A-4650-BD64-CAE23FD997AD"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
-            landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "87B3A7A7-9EF4-4D4F-8249-2F834E21F198"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -920,8 +696,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
+            startingLineNumber = "137"
+            endingLineNumber = "137"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -936,8 +712,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "135"
-            endingLineNumber = "135"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1185,22 +961,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7DAC67C0-B90A-4753-A575-AAE270CC00A3"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Builtins.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
-            landmarkName = "unknown"
-            landmarkType = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "1690093B-45ED-4245-9B0A-31349F3EDBA2"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -1208,8 +968,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "221"
-            endingLineNumber = "221"
+            startingLineNumber = "191"
+            endingLineNumber = "191"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1224,8 +984,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "233"
-            endingLineNumber = "233"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1233,17 +993,336 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "21C1DCE2-589D-4E5A-81EA-E9E86F3A93DA"
+            uuid = "A5DE3FDD-8D2E-480D-B6EB-F10183C4C1F7"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
-            landmarkName = "lambda(_:_:)"
-            landmarkType = "9">
+            startingLineNumber = "242"
+            endingLineNumber = "242"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B4DD3C98-7F99-4F6A-AA24-C714C26B743E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "228"
+            endingLineNumber = "228"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4F290071-987B-4FD7-A814-CEC728D2595D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "226"
+            endingLineNumber = "226"
+            landmarkName = "eval(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5546A13F-E4CF-4C83-8E4F-8EF00AAE553B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "240"
+            endingLineNumber = "240"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "ABDC380E-1FBF-402A-AA37-1E0FEFD147A6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
+            landmarkName = "call(_:_:_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "ABDC380E-1FBF-402A-AA37-1E0FEFD147A6 - 243a73cde8c160a9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "188"
+                  endingLineNumber = "188"
+                  offsetFromSymbolStart = "256">
+               </Location>
+               <Location
+                  uuid = "ABDC380E-1FBF-402A-AA37-1E0FEFD147A6 - 243a73cde8c160a9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "188"
+                  endingLineNumber = "188"
+                  offsetFromSymbolStart = "264">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "02FA6CDD-0B60-4DD6-BE3F-0710C95C9975"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
+            landmarkName = "call(_:_:_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "02FA6CDD-0B60-4DD6-BE3F-0710C95C9975 - 243a73cde8c163c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "199"
+                  endingLineNumber = "199"
+                  offsetFromSymbolStart = "2664">
+               </Location>
+               <Location
+                  uuid = "02FA6CDD-0B60-4DD6-BE3F-0710C95C9975 - 243a73cde8c163c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "199"
+                  endingLineNumber = "199"
+                  offsetFromSymbolStart = "2760">
+               </Location>
+               <Location
+                  uuid = "02FA6CDD-0B60-4DD6-BE3F-0710C95C9975 - 243a73cde8c163c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "199"
+                  endingLineNumber = "199"
+                  offsetFromSymbolStart = "2756">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6DC76B46-89D8-42B2-A376-5114F474A4DF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
+            landmarkName = "call(_:_:_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "6DC76B46-89D8-42B2-A376-5114F474A4DF - 243a73cde8c1625f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "202"
+                  endingLineNumber = "202"
+                  offsetFromSymbolStart = "3384">
+               </Location>
+               <Location
+                  uuid = "6DC76B46-89D8-42B2-A376-5114F474A4DF - 243a73cde8c1625f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Swisp.Func.call(Swisp.Expr, Swisp.Cons, Swisp.Env) throws -&gt; Swisp.Expr"
+                  moduleName = "Swisp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/DataTypes.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "202"
+                  endingLineNumber = "202"
+                  offsetFromSymbolStart = "3476">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FAE0346D-2531-43EF-B30A-E828BB2EDC73"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "197"
+            endingLineNumber = "197"
+            landmarkName = "call(_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AC8DD369-1BF5-4600-9BE7-76F9E1CB3E37"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/DataTypes.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
+            landmarkName = "call(_:_:_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "05C76CF7-4E1D-4B6A-8A0B-F8D6975F6C77"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DAC4DE8F-D37B-4979-8EEC-E60B1B62EC6B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "124"
+            endingLineNumber = "124"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "91889143-3695-4756-ADC5-BAEE74F29101"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B1F8D83D-D168-4C33-B43B-DE404D346227"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "161"
+            endingLineNumber = "161"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6F8A05E2-5E53-4766-BB69-90AC40700AFF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Swisp/Builtins.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "setupBuiltins()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
