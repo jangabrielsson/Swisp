@@ -6,6 +6,7 @@
 //
 
 import Foundation
+let UPPERCASED = true
 
 enum LispError: Error {
     case value(String)
@@ -33,6 +34,8 @@ class LispFiles {
 
 class Env {
     var lisp: LispState
+    var NIL: Atom
+    var TRUE: Atom
     var bindings = [[Atom:Expr]]()
     var currInput: InputStream?
     var lastCall: Expr?
@@ -64,26 +67,34 @@ class Env {
     }
     init(_ lisp: LispState) {
         self.lisp = lisp
+        self.NIL = lisp.NIL
+        self.TRUE = lisp.TRUE
     }
 }
 
 class LispState {
+    let uppercase = UPPERCASED
     var symbols : [String : Atom] = [:]
-    var NIL = Atom(name:"NIL")
-    var TRUE = Atom(name:"T")
-    var QUOTE: Atom?
-    var OPTIONAL = Atom(name:"&OPTIONAL")
-    var REST = Atom(name:"&REST")
-    var parser = Parser()
+    var NIL = Atom(name:"nil")
+    var TRUE = Atom(name:"t")
+    var QUOTE = Atom(name:"quote")
+    var OPTIONAL = Atom(name:"&optional")
+    var REST = Atom(name:"&rest")
+    lazy var parser: Parser = {
+        return Parser(self)
+    }()
     var trace: Bool = false
     var readMacros = [String:Func]()
     
+    func symName(_ str: String) -> String { uppercase ? str.uppercased() : str }
+    
     func intern(name: String) -> Atom {
-        if let atom = symbols[name] {
+        let str = symName(name)
+        if let atom = symbols[str] {
             return atom
         }
-        let atom = Atom(name: name, value: NIL)
-        symbols[name] = atom
+        let atom = Atom(name: str, value: NIL)
+        symbols[str] = atom
         return atom
     }
     
@@ -99,13 +110,12 @@ class LispState {
     init(loadLib:Bool = true, trace:Bool = false) {
         NIL.set(NIL)
         TRUE.set(TRUE)
-        parser.lisp = self
-        symbols["NIL"] = NIL
-        symbols["T"] = TRUE
-        symbols["&OPTIONAL"] = OPTIONAL
-        symbols["&REST"] = REST
-        define(name:"TRUE").set(TRUE)
-        QUOTE = define(name:"QUOTE")
+        symbols[NIL.name] = NIL
+        symbols[TRUE.name] = TRUE
+        symbols[QUOTE.name] = QUOTE
+        symbols[OPTIONAL.name]=OPTIONAL
+        symbols[REST.name] = REST
+        define(name:"true").set(TRUE)
         self.trace = trace
         setupBuiltins()
         if loadLib {
@@ -162,7 +172,7 @@ class LispState {
     
     func equal(_ expr1: Expr, _ expr2: Expr) throws -> Bool {
         if try eq(expr1,expr2) { return true }
-        if !(expr1.isCons() && expr2.isCons()) { return false }
+        if !(expr1 is Cons && expr2 is Cons) { return false }
         return try equal(expr1.car,expr2.car) && equal(expr1.cdr,expr2.cdr)
     }
     

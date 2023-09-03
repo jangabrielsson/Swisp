@@ -102,10 +102,10 @@ let __init_lsp = """
 
 (readmacro "`" (lambda() (list 'backquote (read))))
 (readmacro "," (lambda()
-    (let* ((c (peekChar)))
+    (let* ((c (peekchar)))
        (if (eq c ".")
-           (progn (skipChar) (list '*back-comma-dot* (read)))
-           (if (eq c "@") (progn (skipChar) (list '*back-comma-at* (read)))
+           (progn (skipchar) (list '*back-comma-dot* (read)))
+           (if (eq c "@") (progn (skipchar) (list '*back-comma-at* (read)))
                           (list '*back-comma* (read))))
     )
   )
@@ -168,8 +168,11 @@ let __init_lsp = """
             e))))
     (fun l)))
        
-(defun add (&rest lst) (foldl + 0 lst)) ;
-            
+(defun add (&rest lst) (foldl + 0 lst))
+(defun sub (a b) (- a b))
+(defun mul (&rest lst) (foldl * 1 lst))
+(defun div (a b) (/ a b))
+
 ;;; (case expr (val1 res1) (val2 res2) ...) -> (let ((test expr)) (cond ((eq test val1) res1) ...
 (defmacro case (&rest body)
    (let* ((case1 (fn(x)
@@ -210,7 +213,7 @@ let __init_lsp = """
     (flush)
     (setq expr (read))
     (setq *trace-silent* NIL res (catch 'NIL (eval expr)))
-  (setq *trace-silent* T)
+    (setq *trace-silent* T)
     (when (not (memq expr '(* ** ***)))
         (setq *** **)
         (setq ** *)

@@ -288,12 +288,4 @@ let __backquote_lsp = """
       (setq args (cdr args)))
     result))
 """
-//
-//(let ((a '(1 2 3)))
-//   (while a
-//       (print (car a))
-//       (setq a (cdr a))))
-//
-(let ((a '(1 2 3)))
-   (setq a (cdr a))
-   (print a))
+

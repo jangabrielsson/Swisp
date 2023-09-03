@@ -35,7 +35,7 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
             case .param: params.append(e as! Atom)
             case .optional:
                 if let p = e as? Atom {
-                    optionals.append((p,env.lisp.NIL))
+                    optionals.append((p,env.NIL))
                 } else if let p = e as? Cons {
                     optionals.append((p.carValue as! Atom,try p.cdrValue.car))
                 } else {
@@ -44,7 +44,7 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
             case .rest: rest = e as? Atom
             }
         }
-    } else if !a.isEq(env.lisp.NIL) {
+    } else if !a.isEq(env.NIL) {
         throw LispError.syntax("Bad lambda parameters")
     }
     let body = args
@@ -63,16 +63,16 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
             if args.count > n {
                 let val = try env.lisp.arrayToList(args[n...])
                 env.bind(rest,val)
-            } else { env.bind(rest,env.lisp.NIL) }
+            } else { env.bind(rest,env.NIL) }
         }
         var r: Expr?
         for i in 1..<body.count {
             r = try body[i].eval(env)
         }
         env.pop()
-        return r ?? env.lisp.NIL
+        return r ?? env.NIL
     }
-    let fn = Func(name:"LAMBDA",args:(state,params.count,params.count+optionals.count),fun:nf)
+    let fn = Func(name:"lambda",args:(state,params.count,params.count+optionals.count),fun:nf)
     return fn
 }
 
@@ -80,7 +80,7 @@ func let_star(_ args: ArgsList, _ env: Env) throws -> Expr {
     env.push()
     for p in args[0] as! Cons {
         let v = try p.car as! Atom
-        env.bind(v,env.lisp.NIL)
+        env.bind(v,env.NIL)
         try env.bind(v,p.cdr.car.eval(env))
     }
     var res: Expr?
@@ -106,58 +106,58 @@ extension LispState {
             return try Number(num: args[0].num / args[1].num)
         }
         define(name:">",args:(.param,2,2)) { args,env in
-            return try args[0].num > args[1].num ? env.lisp.TRUE : env.lisp.NIL
+            return try args[0].num > args[1].num ? env.TRUE : env.NIL
         }
         define(name:"<",args:(.param,2,2)) { args,env in
-            return try args[0].num < args[1].num ? env.lisp.TRUE : env.lisp.NIL
+            return try args[0].num < args[1].num ? env.TRUE : env.NIL
         }
-        define(name:"CONS",args:(.param,2,2)) { args,_ in
+        define(name:"cons",args:(.param,2,2)) { args,_ in
             return Cons(car: args[0], cdr: args[1])
         }
-        define(name:"CAR",args:(.param,1,1)) { args,_ in
+        define(name:"car",args:(.param,1,1)) { args,_ in
             return try args[0].car
         }
-        define(name:"CDR",args:(.param,1,1)) { args,_ in
+        define(name:"cdr",args:(.param,1,1)) { args,_ in
             return try args[0].cdr
         }
-        define(name:"EQ",args:(.param,2,2)) { args,env in
-            return args[0].isEq(args[1]) ? env.lisp.TRUE : env.lisp.NIL
+        define(name:"eq",args:(.param,2,2)) { args,env in
+            return args[0].isEq(args[1]) ? env.TRUE : env.NIL
         }
-        define(name:"CONSP",args:(.param,1,1)) { args,env in
-            return args[0].isCons() ? env.lisp.TRUE : env.lisp.NIL
+        define(name:"consp",args:(.param,1,1)) { args,env in
+            return args[0] is Cons ? env.TRUE : env.NIL
         }
-        define(name:"NUMBERP",args:(.param,1,1)) { args,env in
-            return args[0].isNum() ? env.lisp.TRUE : env.lisp.NIL
+        define(name:"numberp",args:(.param,1,1)) { args,env in
+            return args[0] is Number ? env.TRUE : env.NIL
         }
-        define(name:"ATOM",args:(.param,1,1)) { args,env in
-            return args[0].isAtom() ? env.lisp.TRUE : env.lisp.NIL
+        define(name:"atom",args:(.param,1,1)) { args,env in
+            return args[0] is Atom || args[0] is Number || args[0] is Str ? env.TRUE : env.NIL
         }
-        define(name:"QUOTE",args:(.param,1,1),special:true) { args,_ in
+        define(name:"quote",args:(.param,1,1),special:true) { args,_ in
             return args[0]
         }
-        define(name:"RPLACA",args:(.param,2,2)) { args,_ in
+        define(name:"rplaca",args:(.param,2,2)) { args,_ in
             (args[0] as! Cons).carValue = args[1]
             return args[1]
         }
-        define(name:"RPLACD",args:(.param,2,2)) { args,_ in
+        define(name:"rplacd",args:(.param,2,2)) { args,_ in
             (args[0] as! Cons).cdrValue = args[1]
             return args[1]
         }
-        define(name:"PROGN",args:(.rest,0,0)) { args,_ in
+        define(name:"progn",args:(.rest,0,0)) { args,_ in
             return args.last!
         }
-        define(name:"PRINT",args:(.rest,0,100)) { args,env in
+        define(name:"print",args:(.rest,0,100)) { args,env in
             for e in args {
                 print("\(e) ",terminator: "")
             }
             print()
-            return args.last ?? env.lisp.NIL
+            return args.last ?? env.NIL
         }
-        define(name:"EVAL",args:(.param,1,1)) { args,env in
+        define(name:"eval",args:(.param,1,1)) { args,env in
             return try args[0].eval(env)
         }
-        define(name:"SETQ",args:(.rest,2,2),special:true) { args,env in
-            var r: Expr = env.lisp.NIL
+        define(name:"setq",args:(.rest,2,2),special:true) { args,env in
+            var r: Expr = env.NIL
             for i in stride(from: 0, to: args.count, by: 2) {
                 let v = args[i] as! Atom
                 r = try args[i+1].eval(env)
@@ -165,89 +165,102 @@ extension LispState {
             }
             return r
         }
-        define(name:"LIST",args:(.rest,0,0)) { args,env in
+        define(name:"list",args:(.rest,0,0)) { args,env in
             return try env.lisp.arrayToList(args)
         }
-        define(name:"IF",args:(.optional,2,3),special:true) { args,env in
+        define(name:"if",args:(.optional,2,3),special:true) { args,env in
             if args.count > 2 {
-                return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : args[2].eval(env)
+                return try !args[0].eval(env).isEq(env.NIL) ? args[1].eval(env) : args[2].eval(env)
             } else {
-                return try !args[0].eval(env).isEq(env.lisp.NIL) ? args[1].eval(env) : env.lisp.NIL
+                return try !args[0].eval(env).isEq(env.NIL) ? args[1].eval(env) : env.NIL
             }
         }
-        define(name:"OR",args:(.param,2,2),special:true) { args,env in
+        define(name:"or",args:(.param,2,2),special:true) { args,env in
             let e = try args[0].eval(env)
-            if !e.isEq(env.lisp.NIL) { return e }
+            if !e.isEq(env.NIL) { return e }
             return try args[1].eval(env)
         }
-        define(name:"STRFORMAT",args:(.optional,1,100)) { args,env in
-            //let fmt = try args[0].str
-            return Str(str:"Not implemented yet")
+        define(name:"strformat",args:(.optional,1,100)) { args,env in
+            let fmt = try args[0].str
+            var va = [any CVarArg]()
+            for e in args[1..<args.count] {
+                switch e.type {
+                case .atom: va.append((e as! Atom).name)
+                case .number: va.append((e as! Number).val)
+                case .str: va.append((e as! Str).value)
+                case .cons: va.append("\(e)")
+                case .fun: va.append("\(e)")
+                }
+            }
+            return Str(str:String(format: fmt.replacingOccurrences(of: "%s", with: "%@"), arguments:va))
         }
-        define(name:"READ",args:(.param,0,0)) { args,env in
+        define(name:"read",args:(.param,0,0)) { args,env in
             if let stream = env.currInput {
                 return try env.lisp.readExpr(stream)!
             }
             print("No input stream set")
-            return env.lisp.NIL
+            return env.NIL
         }
-        define(name:"PEEKCHAR",args:(.param,0,0)) { args,env in
+        define(name:"peekchar",args:(.param,0,0)) { args,env in
             if let stream = env.currInput {
                 if let c = stream.peek() {
                     var bb = ""
                     bb.unicodeScalars.append(contentsOf: [c])
                     return Str(str:bb)
                 }
-                return env.lisp.NIL
+                return env.NIL
             }
             print("No input stream set")
-            return env.lisp.NIL
+            return env.NIL
         }
-        define(name:"SKIPCHAR",args:(.param,0,0)) { args,env in
+        define(name:"skipchar",args:(.param,0,0)) { args,env in
             if let stream = env.currInput {
                 _ = stream.next()
             } else {
                 print("No input stream set")
             }
-            return env.lisp.NIL
+            return env.NIL
         }
-        define(name:"READFILE",args:(.param,1,1)) { args,env in
+        define(name:"flush",args:(.param,0,0)) { args,env in // TBD
+            return env.NIL
+        }
+        define(name:"readfile",args:(.param,1,1)) { args,env in
             let path = try args[0].str
             if case (false,let msg) = env.lisp.load(path) {
                 return Str(str:msg)
             }
-            return env.lisp.TRUE
+            return env.TRUE
         }
-        define(name:"READMACRO",args:(.param,2,2)) { args,env in
+        define(name:"readmacro",args:(.param,2,2)) { args,env in
             let sym = args[0] as! Str
             let fun = args[1] as! Func
             env.lisp.readMacros.updateValue(fun, forKey: sym.value)
             return sym
         }
-        define(name:"DEFUN",args:(.rest,2,100),special:true) { args,env in
+        define(name:"defun",args:(.rest,2,100),special:true) { args,env in
             let name = args[0] as! Atom
             let params = args[1]
             let body = try env.lisp.arrayToList(args[2...])
-            let lambda = Cons(car: env.lisp.intern(name:"LAMBDA"),
+            let lambda = Cons(car: env.lisp.intern(name:"lambda"),
                               cdr: Cons(car: params,cdr: body))
             let fun = try lambda.eval(env) as! Func
             fun.name = name.name
-            fun.type = .fun
+            fun.ftype = .fun
             name.set(fun)
             return name
         }
-        define(name:"DEFMACRO",args:(.rest,2,100),special:true) { args,env in
+        define(name:"defmacro",args:(.rest,2,100),special:true) { args,env in
             let name = args[0]
             let newArgs = args[1...].map { $0 }
             let fun = try lambda(newArgs,env) as! Func
-            fun.type = .macro
+            fun.ftype = .macro
             fun.special = true
             fun.name = "\(name)"
             try name.set(fun)
             return name
         }
-        define(name:"WHILE",args:(.rest,1,100),special:true) { args,env in
-            let NIL = env.lisp.NIL
+        define(name:"while",args:(.rest,1,100),special:true) { args,env in
+            let NIL = env.NIL
             let test = args[0]
             while try !test.eval(env).isEq(NIL) {
                 for e in args[1...] {
@@ -256,8 +269,8 @@ extension LispState {
             }
             return NIL
         }
-        define(name:"COND",args:(.rest,1,100),special:true) { args,env in
-            let NIL = env.lisp.NIL
+        define(name:"cond",args:(.rest,1,100),special:true) { args,env in
+            let NIL = env.NIL
             for e in args {
                 if let c = e as? Cons {
                     if try !c.carValue.eval(env).isEq(NIL) {
@@ -272,16 +285,17 @@ extension LispState {
             }
             return NIL
         }
-        define(name:"GENSYM",args:(.param,0,0)) { args,env in
-            return env.lisp.intern(name:"<GENSYM\(Int.random(in: 1..<10000000))>")
+        define(name:"gensym",args:(.param,0,0)) { args,env in
+            return env.lisp.intern(name:"<gensym\(Int.random(in: 1..<10000000))>")
         }
-        define(name:"CLOCK",args:(.param,0,0)) { args,env in
-            return Number(num:0)
+        define(name:"clock",args:(.param,0,0)) { args,env in
+            let date = Date()
+            return Number(num:date.timeIntervalSince1970 * 1000)
         }
-        define(name:"LAMBDA",args:(.rest,1,100),special:true,fun:lambda)
-        define(name:"FN",args:(.rest,1,100),special:true,fun:lambda)
-        define(name:"LET*",args:(.rest,1,100),special:true,fun:let_star)
-        define(name:"LET",args:(.rest,1,100),special:true,fun:let_star)
+        define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
+        define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)
+        define(name:"let*",args:(.rest,1,100),special:true,fun:let_star)
+        define(name:"let",args:(.rest,1,100),special:true,fun:let_star)
     }
 }
 
