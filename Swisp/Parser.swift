@@ -28,7 +28,7 @@ class Parser {
             let fun = lisp.readMacros[t.value]!.fun
             let env = Env(lisp)
             env.currInput = tk.stream
-            let expr = try fun([],env)
+            let expr = try fun([tk.stream],env)
             return expr
         }
         return nil
@@ -63,8 +63,9 @@ class Parser {
                         throw LispError.parse("Missing ')' at .line: \(t.line)")
                     default:
                         pushback()
-                        p.cdrValue = try Cons(car:pp(tk:tk), cdr:NIL)
-                        p = p.cdr as! Cons
+                        let nc = try Cons(car:pp(tk:tk), cdr:NIL)
+                        p.cdrValue = nc
+                        p = nc
                     }
                 }
             }

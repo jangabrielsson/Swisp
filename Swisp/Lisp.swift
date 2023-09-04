@@ -9,6 +9,7 @@ import Foundation
 let UPPERCASED = true
 
 enum LispError: Error {
+    case unbound(String)
     case value(String)
     case param(String)
     case syntax(String)
@@ -32,38 +33,68 @@ class LispFiles {
     }
 }
 
+class SharedDictionary<K: Hashable, V> {
+    var dict : Dictionary<K, V>
+    subscript(key : K) -> V? {
+        get {
+            return dict[key]
+        }
+        set(newValue) {
+            dict[key] = newValue
+        }
+    }
+    init() { dict = [:] }
+}
+
+class Bindings {
+    var prev: Bindings?
+    var vars = [Atom:Expr]()
+    func lookup(_ atom: Atom) -> Expr? {
+        return vars[atom]
+    }
+    func bind(_ atom: Atom, _ expr: Expr) {
+        vars.updateValue(expr,forKey:atom)
+    }
+    init(_ prev: Bindings?) {
+        self.prev = prev
+    }
+}
+
 class Env {
     var lisp: LispState
     var NIL: Atom
     var TRUE: Atom
-    var bindings = [[Atom:Expr]]()
+    var bindings: Bindings? // = [[Atom:Expr]]()
     var currInput: InputStream?
     var lastCall: Expr?
+    var jitted = SharedDictionary<Cons,Expr>()
     
-    func push() {
-        bindings.append([:])
-    }
-    func pop() {
-        _ = bindings.popLast()
-    }
-    func bind(_ atom: Atom, _ expr: Expr) {
-        //print("Binding \(atom)=\(expr)")
-        bindings[bindings.count-1].updateValue(expr,forKey:atom)
-    }
+    func push() { bindings = Bindings(bindings) }
+    func pop() { bindings = bindings?.prev }
+    func bind(_ atom: Atom, _ expr: Expr) { bindings?.bind(atom,expr) }
     func lookup(_ atom: Atom) -> Expr? {
-        for be in bindings.reversed() {
-            if let e = be[atom] { return e }
+        var b = bindings
+        while let be = b {
+            if let e = be.lookup(atom) { return e }
+            b = be.prev
         }
         return nil
     }
     func set(_ atom: Atom, _ expr: Expr) {
-        for i in stride(from:bindings.count-1,through:0,by:-1) {
-            if bindings[i][atom] != nil {
-                bindings[i].updateValue(expr,forKey:atom)
-                return
-            }
+        var b = bindings
+        while let be = b {
+            if be.lookup(atom) != nil { be.bind(atom,expr); return }
+            b = be.prev
         }
         atom.set(expr)
+    }
+    func copy() -> Env {
+        let env = Env(lisp)
+        env.bindings = bindings
+        env.jitted = jitted
+        env.lastCall = lastCall
+        env.currInput = currInput
+        return env
     }
     init(_ lisp: LispState) {
         self.lisp = lisp
@@ -93,7 +124,7 @@ class LispState {
         if let atom = symbols[str] {
             return atom
         }
-        let atom = Atom(name: str, value: NIL)
+        let atom = Atom(name: str, value: nil)
         symbols[str] = atom
         return atom
     }

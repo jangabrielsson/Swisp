@@ -13,6 +13,7 @@ enum DataType {
     case cons
     case str
     case fun
+    case stream
 }
 
 protocol Expr: CustomStringConvertible {
@@ -121,7 +122,7 @@ class Atom : Expr, Hashable {
         if let val = env.lookup(self) {
             return val
         }
-        guard val != nil else { throw LispError.value("Atom \(self) not bound") }
+        guard val != nil else { throw LispError.unbound("Atom \(self)") }
         return val!
     }
     func hash(into hasher: inout Hasher) {
@@ -153,7 +154,7 @@ class Str : Expr {
     }
 }
 
-class Cons : Expr {
+class Cons : Expr, Hashable, Equatable {
     let type: DataType = .cons
     var carValue: Expr
     var cdrValue: Expr
@@ -172,6 +173,10 @@ class Cons : Expr {
         }
         return "("+res.joined(separator:" ")+")"
     }
+    static func ==(lhs: Cons, rhs: Cons) -> Bool {
+        return lhs === rhs
+    }
+    func hash(into hasher: inout Hasher) { return hasher.combine(ObjectIdentifier(self)) }
     init(car: Expr, cdr: Expr) {
         carValue = car; cdrValue = cdr
     }
@@ -198,7 +203,7 @@ class Func : Expr { // Expr wrapper for a Swift function
         if let list = exprList as? Cons {
             args = try list.toArray() { try special ? $0 : $0.eval(env) }
         }
-        switch nargs {
+        switch nargs { // Check correct number of arguments
         case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
         case (.optional,let min, let max): if args.count < min && args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
         case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }
@@ -207,8 +212,8 @@ class Func : Expr { // Expr wrapper for a Swift function
         if ftype == .macro {            // macros evaluates their results (macroexpand)
             if env.lisp.trace { print("MACROEXPAND:\(res)") }
             res = try res.eval(env)
+            env.jitted[caller] = res    // "memoization for our macroexpanded code...
         }
-        //if env.lisp.trace { print("Func:\(name)(\(args))=\(res)") }
         return res
     }
     public var description: String { "<\(ftype.rawValue):\(name)>" }
@@ -221,26 +226,32 @@ class Func : Expr { // Expr wrapper for a Swift function
 }
 
 extension Cons: Sequence {
-    func toArray(cont: (Expr) throws -> Expr) throws -> [Expr] {
-        var res = [Expr]()
-        for e in self { try res.append(cont(e)) }
-        return res
-    }
-    
     func makeIterator() -> ConsIterator {
         return ConsIterator(self)
     }
 }
 
 extension Cons {
+    func toArray(cont: (Expr) throws -> Expr) throws -> [Expr] {
+        var res = [Expr]()
+        for e in self { try res.append(cont(e)) }
+        return res
+    }
+    
     func eval(_ env: Env) throws -> Expr {
         env.lastCall = carValue
         if env.lisp.trace { print("CALL:\(carValue)\(cdrValue)") }
-        let f = try carValue.eval(env)
-        env.lastCall = nil
-        let res = try f.call(cdrValue,self,env)
-        if env.lisp.trace { print("RETURN:\(carValue)\(cdrValue)=\(res)") }
-        return res
+        if let code = env.jitted[self] {
+            let res = try code.eval(env)
+            env.lastCall = nil
+            return res
+        } else {
+            let f = try carValue.eval(env)
+            env.lastCall = nil
+            let res = try f.call(cdrValue,self,env)
+            if env.lisp.trace { print("RETURN:\(carValue)\(cdrValue)=\(res)") }
+            return res
+        }
     }
 }
 

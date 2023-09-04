@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol InputStream {
+protocol InputStream : Expr {
     func next() -> CType
     func peek() -> CType?
     func flushLine()
@@ -18,6 +18,7 @@ protocol InputStream {
 typealias CType = Unicode.Scalar
 
 class StringInputStream : InputStream {
+    let type: DataType = .stream
     var lines: [String.UnicodeScalarView]
     var s: String.Index
     var e: String.Index
@@ -63,7 +64,9 @@ class StringInputStream : InputStream {
     }
 }
 
-class FileInputStream : InputStream { // ToDo
+class FileInputStream : InputStream {
+    let type: DataType = .stream
+    // ToDo
     var line: Int
     func next() -> CType {
         return CType(0)
@@ -86,6 +89,7 @@ class FileInputStream : InputStream { // ToDo
 }
 
 class ConsoleInputStream : InputStream {
+    let type: DataType = .stream
     var str: String.UnicodeScalarView = "".unicodeScalars
     var s: String.Index
     var e: String.Index

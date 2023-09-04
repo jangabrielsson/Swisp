@@ -14,7 +14,7 @@ enum ParamType {
     case rest
 }
 
-func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
+func lambda(_ args: ArgsList, _ env: Env) throws -> Func {
     var params = [Atom]()
     var optionals = [(Atom,Expr)]()
     var state: ParamType = .param
@@ -48,29 +48,30 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Expr {
         throw LispError.syntax("Bad lambda parameters")
     }
     let body = args
-    let nf = { [params,optionals,rest] (_ args:ArgsList,_ env:Env) throws -> Expr in
-        env.push()
+    let myEnv = env.copy()
+    let nf = { [params,optionals,rest] (_ args:ArgsList,_ _:Env) throws -> Expr in
+        myEnv.push()
         var n = 0
         if args.count < params.count { throw LispError.param("Too few parameters, expected \(params.count)") }
-        for i in n..<params.count { env.bind(params[i],args[i]) }
+        for i in n..<params.count { myEnv.bind(params[i],args[i]) }
         n = params.count
         for i in 0..<optionals.count {
             let (v,e) = optionals[i]
-            env.bind(v,n+i < args.count ? args[n+i] : try e.eval(env))
+            myEnv.bind(v,n+i < args.count ? args[n+i] : try e.eval(myEnv))
         }
         n += optionals.count
         if let rest {
             if args.count > n {
-                let val = try env.lisp.arrayToList(args[n...])
-                env.bind(rest,val)
-            } else { env.bind(rest,env.NIL) }
+                let val = try myEnv.lisp.arrayToList(args[n...])
+                myEnv.bind(rest,val)
+            } else { myEnv.bind(rest,myEnv.NIL) }
         }
         var r: Expr?
         for i in 1..<body.count {
-            r = try body[i].eval(env)
+            r = try body[i].eval(myEnv)
         }
-        env.pop()
-        return r ?? env.NIL
+        myEnv.pop()
+        return r ?? myEnv.NIL
     }
     let fn = Func(name:"lambda",args:(state,params.count,params.count+optionals.count),fun:nf)
     return fn
@@ -190,19 +191,20 @@ extension LispState {
                 case .str: va.append((e as! Str).value)
                 case .cons: va.append("\(e)")
                 case .fun: va.append("\(e)")
+                case .stream: va.append("<stream>")
                 }
             }
             return Str(str:String(format: fmt.replacingOccurrences(of: "%s", with: "%@"), arguments:va))
         }
-        define(name:"read",args:(.param,0,0)) { args,env in
-            if let stream = env.currInput {
+        define(name:"read",args:(.param,1,1)) { args,env in
+            if let stream = args[0] as? InputStream {
                 return try env.lisp.readExpr(stream)!
             }
-            print("No input stream set")
+            print("No input stream set.")
             return env.NIL
         }
-        define(name:"peekchar",args:(.param,0,0)) { args,env in
-            if let stream = env.currInput {
+        define(name:"peekchar",args:(.param,1,1)) { args,env in
+            if let stream = args[0] as? InputStream {
                 if let c = stream.peek() {
                     var bb = ""
                     bb.unicodeScalars.append(contentsOf: [c])
@@ -210,18 +212,23 @@ extension LispState {
                 }
                 return env.NIL
             }
-            print("No input stream set")
+            print("No input stream set..")
             return env.NIL
         }
-        define(name:"skipchar",args:(.param,0,0)) { args,env in
-            if let stream = env.currInput {
+        define(name:"skipchar",args:(.param,1,1)) { args,env in
+            if let stream = args[0] as? InputStream {
                 _ = stream.next()
             } else {
-                print("No input stream set")
+                print("No input stream set...")
             }
             return env.NIL
         }
-        define(name:"flush",args:(.param,0,0)) { args,env in // TBD
+        define(name:"flush",args:(.param,1,1)) { args,env in // TBD
+            if let stream = args[0] as? InputStream {
+                _ = stream.next()
+            } else {
+                print("No input stream set...")
+            }
             return env.NIL
         }
         define(name:"readfile",args:(.param,1,1)) { args,env in
@@ -232,8 +239,9 @@ extension LispState {
             return env.TRUE
         }
         define(name:"readmacro",args:(.param,2,2)) { args,env in
-            let sym = args[0] as! Str
-            let fun = args[1] as! Func
+            guard let sym = args[0] as? Str, let fun = args[1] as? Func else {
+                throw LispError.value("readmacro wants string and function")
+            }
             env.lisp.readMacros.updateValue(fun, forKey: sym.value)
             return sym
         }
@@ -252,7 +260,7 @@ extension LispState {
         define(name:"defmacro",args:(.rest,2,100),special:true) { args,env in
             let name = args[0]
             let newArgs = args[1...].map { $0 }
-            let fun = try lambda(newArgs,env) as! Func
+            let fun = try lambda(newArgs,env)
             fun.ftype = .macro
             fun.special = true
             fun.name = "\(name)"
