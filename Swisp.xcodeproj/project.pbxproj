@@ -13,6 +13,7 @@
 		E6D41A3B2AA1CD45004E5A67 /* Backquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A392AA1CD45004E5A67 /* Backquote.swift */; };
 		E6D41A3E2AA3D18C004E5A67 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A3C2AA3D18C004E5A67 /* Test.swift */; };
 		E6D41A3F2AA3D28E004E5A67 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A3C2AA3D18C004E5A67 /* Test.swift */; };
+		E6D41A432AA60D28004E5A67 /* BigNum in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A422AA60D28004E5A67 /* BigNum */; };
 		E6D62BA22A9E27EC004A4F63 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BA12A9E27EC004A4F63 /* main.swift */; };
 		E6D62BA92A9E2803004A4F63 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BA82A9E2803004A4F63 /* Parser.swift */; };
 		E6D62BAB2A9E2852004A4F63 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BAA2A9E2852004A4F63 /* Tokenizer.swift */; };
@@ -63,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6D41A432AA60D28004E5A67 /* BigNum in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,6 +146,9 @@
 			dependencies = (
 			);
 			name = Swisp;
+			packageProductDependencies = (
+				E6D41A422AA60D28004E5A67 /* BigNum */,
+			);
 			productName = Swisp;
 			productReference = E6D62B9E2A9E27EC004A4F63 /* Swisp */;
 			productType = "com.apple.product-type.tool";
@@ -192,6 +197,9 @@
 				Base,
 			);
 			mainGroup = E6D62B952A9E27EC004A4F63;
+			packageReferences = (
+				E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */,
+			);
 			productRefGroup = E6D62B9F2A9E27EC004A4F63 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -458,6 +466,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/adam-fowler/big-num";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E6D41A422AA60D28004E5A67 /* BigNum */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */;
+			productName = BigNum;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E6D62B962A9E27EC004A4F63 /* Project object */;
 }

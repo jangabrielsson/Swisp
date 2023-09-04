@@ -36,7 +36,7 @@ class Parser {
     func pp(tk: Tokenizer) throws -> Expr {
         var t = try nextToken(tk)
         switch t.token {
-        case .NUM: return Number(num:Double(t.value) ?? 0)
+        case .NUM: return Number(num:t.value)
         case .STR: return Str(str:t.value)
         case .SYM:
             if let rexpr = try readMacro(t,tk) { return rexpr }

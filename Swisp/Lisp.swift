@@ -91,7 +91,7 @@ class Env {
     func copy() -> Env {
         let env = Env(lisp)
         env.bindings = bindings
-        env.jitted = jitted
+        //env.jitted = jitted
         env.lastCall = lastCall
         env.currInput = currInput
         return env

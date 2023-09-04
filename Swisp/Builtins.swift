@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import BigNum
 // Builtins gets their arguments evaluated (from Func.call )
 enum ParamType {
     case param
@@ -137,17 +137,21 @@ extension LispState {
             return args[0]
         }
         define(name:"rplaca",args:(.param,2,2)) { args,_ in
-            (args[0] as! Cons).carValue = args[1]
+            if let c = args[0] as? Cons {
+                c.carValue = args[1]
+            } else { throw LispError.value("rplaca needs cons as first value") }
             return args[1]
         }
         define(name:"rplacd",args:(.param,2,2)) { args,_ in
-            (args[0] as! Cons).cdrValue = args[1]
+            if let c = args[0] as? Cons {
+                c.cdrValue = args[1]
+            } else { throw LispError.value("rplaca needs cons as first value") }
             return args[1]
         }
-        define(name:"progn",args:(.rest,0,0)) { args,_ in
-            return args.last!
+        define(name:"progn",args:(.rest,0,0)) { args,env in
+            return args.last ?? env.NIL
         }
-        define(name:"print",args:(.rest,0,100)) { args,env in
+        define(name:"print",args:(.rest,0,0)) { args,env in
             for e in args {
                 print("\(e) ",terminator: "")
             }
@@ -160,9 +164,10 @@ extension LispState {
         define(name:"setq",args:(.rest,2,2),special:true) { args,env in
             var r: Expr = env.NIL
             for i in stride(from: 0, to: args.count, by: 2) {
-                let v = args[i] as! Atom
-                r = try args[i+1].eval(env)
-                env.set(v,r)
+                if let v = args[i] as? Atom {
+                    r = try args[i+1].eval(env)
+                    env.set(v,r)
+                } else { throw LispError.syntax("setq expects atom") }
             }
             return r
         }
@@ -187,7 +192,7 @@ extension LispState {
             for e in args[1..<args.count] {
                 switch e.type {
                 case .atom: va.append((e as! Atom).name)
-                case .number: va.append((e as! Number).val)
+                case .number: va.append("\(e)") //(e as! Number).val)
                 case .str: va.append((e as! Str).value)
                 case .cons: va.append("\(e)")
                 case .fun: va.append("\(e)")
@@ -232,8 +237,8 @@ extension LispState {
             return env.NIL
         }
         define(name:"readfile",args:(.param,1,1)) { args,env in
-            let path = try args[0].str
-            if case (false,let msg) = env.lisp.load(path) {
+            guard let path = args[0] as? Str else { throw LispError.syntax("readfile wants string as path argument") }
+            if case (false,let msg) = env.lisp.load(path.value) {
                 return Str(str:msg)
             }
             return env.TRUE
@@ -246,11 +251,11 @@ extension LispState {
             return sym
         }
         define(name:"defun",args:(.rest,2,100),special:true) { args,env in
-            let name = args[0] as! Atom
-            let params = args[1]
+            guard let name = args[0] as? Atom else { throw LispError.syntax("defun wants atom as first arg") }
+            guard args[1].isEq(env.NIL) || args[1] is Cons else { throw LispError.syntax("defun wants nil/list as parameter arg") }
             let body = try env.lisp.arrayToList(args[2...])
             let lambda = Cons(car: env.lisp.intern(name:"lambda"),
-                              cdr: Cons(car: params,cdr: body))
+                              cdr: Cons(car: args[1],cdr: body))
             let fun = try lambda.eval(env) as! Func
             fun.name = name.name
             fun.ftype = .fun
@@ -258,13 +263,13 @@ extension LispState {
             return name
         }
         define(name:"defmacro",args:(.rest,2,100),special:true) { args,env in
-            let name = args[0]
+            guard let name = args[0] as? Atom else { throw LispError.syntax("defmacro wants atom as first arg") }
             let newArgs = args[1...].map { $0 }
             let fun = try lambda(newArgs,env)
             fun.ftype = .macro
             fun.special = true
-            fun.name = "\(name)"
-            try name.set(fun)
+            fun.name = name.name
+            name.set(fun)
             return name
         }
         define(name:"while",args:(.rest,1,100),special:true) { args,env in

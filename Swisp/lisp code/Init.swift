@@ -131,17 +131,16 @@ let __init_lsp = """
 (defmacro funcall(f &rest args) `(apply ,f (list ,@args)))
 
 (defmacro dolist(params &rest body)
-    (let ((ll (gensym)))
-    `(let ((,ll ,(second params)))
+    (let ((var (first params))(ll (gensym)))
+    `(let ((,var nil)(,ll ,(second params)))
        (while ,ll
-        (setq ,(first params) (first ,ll))
+        (setq ,var (first ,ll))
         (setq ,ll (rest ,ll))
         ,@body))))
 
 (defmacro dotimes(params &rest body)
     (let ((var (first params))(ll (gensym)))
-    `(let ((,ll ,(second params)))
-       (setq ,var 0)
+    `(let ((,var 0)(,ll ,(second params)))
        (while (< ,var ,ll)
         (setq ,var (+ ,var 1))
         ,@body))))

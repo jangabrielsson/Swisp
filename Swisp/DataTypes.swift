@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import BigNum
+
+typealias NumType = BigNum
 
 enum DataType {
     case number
@@ -21,7 +24,7 @@ protocol Expr: CustomStringConvertible {
     var car: Expr { get throws }
     var cdr: Expr { get throws }
     var str: String { get throws }
-    var num: Double { get throws }
+    var num: NumType { get throws }
     var binding: Expr { get throws }
     var funVal: Func { get throws }
     func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr
@@ -37,7 +40,7 @@ extension Expr {
             throw LispError.value("Not a string")
         }
     }
-    var num: Double {
+    var num: NumType {
         get throws {
             throw LispError.value("'\(self)' not a number")
         }
@@ -81,27 +84,26 @@ extension Expr {
 
 class Number : Expr {
     let type: DataType = .number
-    let val: Double
-    var num: Double { val }
-    static var formatter: NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.usesGroupingSeparator = false
-        return formatter
-    }
-    public var description: String {
-        let number = NSNumber(value: val)
-        let formattedValue = Number.formatter.string(from: number)!
-        return "\(formattedValue)"
-    }
+    let val: NumType
+    var num: NumType { val }
+    public var description: String { return "\(val)" }
     func isEq(_ expr: Expr) -> Bool {
         if let e = expr as? Number {
             return e.val == val
         }
         else { return false }
     }
-    init(num: Double) {
+    init(num: NumType) {
         val = num
+    }
+    init(num: Int) {
+        val = NumType(num)
+    }
+    init(num: Double) {
+        val = NumType(Int(num))
+    }
+    init(num: String) {
+        val = NumType(num) ?? NumType(0)
     }
 }
 
@@ -154,12 +156,14 @@ class Str : Expr {
     }
 }
 
+var CONSID = 1
 class Cons : Expr, Hashable, Equatable {
     let type: DataType = .cons
     var carValue: Expr
     var cdrValue: Expr
     var car: Expr { return carValue }
     var cdr: Expr { return cdrValue }
+    let id: Int
     public var description: String {
         var res = [String]()
         var l = self as Expr
@@ -176,9 +180,11 @@ class Cons : Expr, Hashable, Equatable {
     static func ==(lhs: Cons, rhs: Cons) -> Bool {
         return lhs === rhs
     }
-    func hash(into hasher: inout Hasher) { return hasher.combine(ObjectIdentifier(self)) }
+    func hash(into hasher: inout Hasher) { return hasher.combine(id) }
     init(car: Expr, cdr: Expr) {
         carValue = car; cdrValue = cdr
+        id = CONSID
+        CONSID += 1
     }
 }
 
@@ -210,9 +216,10 @@ class Func : Expr { // Expr wrapper for a Swift function
         }
         var res = try fun(args,env)
         if ftype == .macro {            // macros evaluates their results (macroexpand)
+            //print("Save jitted:\(res) - \(caller.id) - \(caller)")
+            env.jitted[caller] = res    // "memoization for our macroexpanded code...
             if env.lisp.trace { print("MACROEXPAND:\(res)") }
             res = try res.eval(env)
-            env.jitted[caller] = res    // "memoization for our macroexpanded code...
         }
         return res
     }
@@ -242,6 +249,7 @@ extension Cons {
         env.lastCall = carValue
         if env.lisp.trace { print("CALL:\(carValue)\(cdrValue)") }
         if let code = env.jitted[self] {
+            //print("Running jitted: \(code) - \(id) - \(self)")
             let res = try code.eval(env)
             env.lastCall = nil
             return res
