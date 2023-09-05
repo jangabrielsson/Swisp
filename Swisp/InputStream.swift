@@ -55,6 +55,8 @@ class StringInputStream : InputStream {
         return lines.isEmpty
     }
     
+    public var description: String { return "<StringInputStream:\(ObjectIdentifier(self))>" }
+    
     init(_ str: String) {
         lines = str.components(separatedBy: CharacterSet.newlines).map{ (String($0)+"\n").unicodeScalars }
         s = lines.first!.startIndex
@@ -83,6 +85,7 @@ class FileInputStream : InputStream {
         return true
     }
     
+    public var description: String { return "<FileInputStream:\(ObjectIdentifier(self))>" }
     init() {
         line = 1
     }
@@ -124,6 +127,7 @@ class ConsoleInputStream : InputStream {
         return s >= e
     }
     
+    public var description: String { return "<ConsoleInputStream:\(ObjectIdentifier(self))>" }
     init() {
         s = str.startIndex
         e = str.endIndex

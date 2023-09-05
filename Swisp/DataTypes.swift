@@ -8,8 +8,6 @@
 import Foundation
 import BigNum
 
-typealias NumType = BigNum
-
 enum DataType {
     case number
     case atom
@@ -37,22 +35,22 @@ protocol Expr: CustomStringConvertible {
 extension Expr {
     var str: String {
         get throws {
-            throw LispError.value("Not a string")
+            throw LispError.value("\(self) not a string")
         }
     }
     var num: NumType {
         get throws {
-            throw LispError.value("'\(self)' not a number")
+            throw LispError.value("\(self) not a number")
         }
     }
     var car: Expr {
         get throws {
-            throw LispError.value("'\(self)' not a cons")
+            throw LispError.value("\(self) not a cons")
         }
     }
     var cdr: Expr {
         get throws {
-            throw LispError.value("'\(self)' not a cons")
+            throw LispError.value("\(self) not a cons")
         }
     }
     var binding: Expr {
@@ -79,7 +77,7 @@ extension Expr {
     func eval(_ env: Env) throws -> Expr {
         return self
     }
-    public var description: String { return "<obj>" }
+    //public var description: String { return "<Expr>" }
 }
 
 class Number : Expr {
@@ -156,14 +154,12 @@ class Str : Expr {
     }
 }
 
-var CONSID = 1
 class Cons : Expr, Hashable, Equatable {
     let type: DataType = .cons
     var carValue: Expr
     var cdrValue: Expr
     var car: Expr { return carValue }
     var cdr: Expr { return cdrValue }
-    let id: Int
     public var description: String {
         var res = [String]()
         var l = self as Expr
@@ -180,11 +176,11 @@ class Cons : Expr, Hashable, Equatable {
     static func ==(lhs: Cons, rhs: Cons) -> Bool {
         return lhs === rhs
     }
-    func hash(into hasher: inout Hasher) { return hasher.combine(id) }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self)) // ToDo BUG. ObjId is reused when object is GC'ed...
+    }
     init(car: Expr, cdr: Expr) {
         carValue = car; cdrValue = cdr
-        id = CONSID
-        CONSID += 1
     }
 }
 

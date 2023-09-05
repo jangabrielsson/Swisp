@@ -9,7 +9,7 @@ import Foundation
 
 print("Swisp v0.1")
 
-let Lisp = LispState(trace:false)
+let Lisp = LispRuntime(trace:false)
 
 var input = ConsoleInputStream()
     

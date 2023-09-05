@@ -7,14 +7,15 @@
 
 import Foundation
 import BigNum
-// Builtins gets their arguments evaluated (from Func.call )
+
 enum ParamType {
     case param
     case optional
     case rest
 }
 
-func lambda(_ args: ArgsList, _ env: Env) throws -> Func {
+
+func lambda(_ args: ArgsList, _ env: Env) throws -> Func { // Builtins gets their arguments evaluated (from Func.call )
     var params = [Atom]()
     var optionals = [(Atom,Expr)]()
     var state: ParamType = .param
@@ -67,9 +68,7 @@ func lambda(_ args: ArgsList, _ env: Env) throws -> Func {
             } else { myEnv.bind(rest,myEnv.NIL) }
         }
         var r: Expr?
-        for i in 1..<body.count {
-            r = try body[i].eval(myEnv)
-        }
+        try body[1..<body.count].forEach() { r = try $0.eval(myEnv) }
         myEnv.pop()
         return r ?? myEnv.NIL
     }
@@ -85,14 +84,24 @@ func let_star(_ args: ArgsList, _ env: Env) throws -> Expr {
         try env.bind(v,p.cdr.car.eval(env))
     }
     var res: Expr?
-    for p in args[1...] {
-        res = try p.eval(env)
-    }
+    try args[1...].forEach() { res = try $0.eval(env) }
     env.pop()
-    return res!
+    return res ?? env.NIL
+}
+
+func let_std(_ args: ArgsList, _ env: Env) throws -> Expr {
+    env.push()
+    for p in args[0] as! Cons {
+        let v = try p.car as! Atom
+        try env.bind(v,p.cdr.car.eval(env))
+    }
+    var res: Expr?
+    try args[1...].forEach() { res = try $0.eval(env) }
+    env.pop()
+    return res ?? env.NIL
 }
     
-extension LispState {
+extension LispRuntime {
     func setupBuiltins() {
         define(name:"+",args:(.param,2,2)) { args,_ in
             return try Number(num: args[0].num + args[1].num)
@@ -137,15 +146,13 @@ extension LispState {
             return args[0]
         }
         define(name:"rplaca",args:(.param,2,2)) { args,_ in
-            if let c = args[0] as? Cons {
-                c.carValue = args[1]
-            } else { throw LispError.value("rplaca needs cons as first value") }
+            guard let c = args[0] as?  Cons else { throw LispError.value("rplaca needs cons as first value") }
+            c.carValue = args[1]
             return args[1]
         }
         define(name:"rplacd",args:(.param,2,2)) { args,_ in
-            if let c = args[0] as? Cons {
-                c.cdrValue = args[1]
-            } else { throw LispError.value("rplaca needs cons as first value") }
+            guard let c = args[0] as?  Cons else { throw LispError.value("rplacd needs cons as first value") }
+            c.cdrValue = args[1]
             return args[1]
         }
         define(name:"progn",args:(.rest,0,0)) { args,env in
@@ -155,7 +162,6 @@ extension LispState {
             for e in args {
                 print("\(e) ",terminator: "")
             }
-            print()
             return args.last ?? env.NIL
         }
         define(name:"eval",args:(.param,1,1)) { args,env in
@@ -186,67 +192,67 @@ extension LispState {
             if !e.isEq(env.NIL) { return e }
             return try args[1].eval(env)
         }
+//        define(name:"strformat",args:(.optional,1,100)) { args,env in
+//            let fmt = try args[0].str
+//            var va = [any CVarArg]()
+//            for e in args[1..<args.count] {
+//                switch e.type {
+//                case .atom: va.append((e as! Atom).name)
+//                case .number: va.append("\(e)") //(e as! Number).val)
+//                case .str: va.append((e as! Str).value)
+//                case .cons: va.append("\(e)")
+//                case .fun: va.append("\(e)")
+//                case .stream: va.append("<stream>")
+//                }
+//            }
+//            return Str(str:String(format: fmt.replacingOccurrences(of: "%s", with: "%@"), arguments:va))
+//        }
         define(name:"strformat",args:(.optional,1,100)) { args,env in
             let fmt = try args[0].str
-            var va = [any CVarArg]()
-            for e in args[1..<args.count] {
+            let va = args[1..<args.count].map(){ e -> any CVarArg in
                 switch e.type {
-                case .atom: va.append((e as! Atom).name)
-                case .number: va.append("\(e)") //(e as! Number).val)
-                case .str: va.append((e as! Str).value)
-                case .cons: va.append("\(e)")
-                case .fun: va.append("\(e)")
-                case .stream: va.append("<stream>")
+                case .atom: return (e as! Atom).name
+                case .number: return "\(e)" //(e as! Number).val)
+                case .str: return (e as! Str).value
+                case .cons: return "\(e)"
+                case .fun: return "\(e)"
+                case .stream: return "\(e)"
                 }
             }
             return Str(str:String(format: fmt.replacingOccurrences(of: "%s", with: "%@"), arguments:va))
         }
         define(name:"read",args:(.param,1,1)) { args,env in
-            if let stream = args[0] as? InputStream {
-                return try env.lisp.readExpr(stream)!
-            }
-            print("No input stream set.")
-            return env.NIL
+            guard let stream = args[0] as? InputStream else { throw LispError.syntax("read wants inputstream argument") }
+            return try env.lisp.readExpr(stream)!
         }
         define(name:"peekchar",args:(.param,1,1)) { args,env in
-            if let stream = args[0] as? InputStream {
-                if let c = stream.peek() {
-                    var bb = ""
-                    bb.unicodeScalars.append(contentsOf: [c])
-                    return Str(str:bb)
-                }
-                return env.NIL
+            guard let stream = args[0] as? InputStream else { throw LispError.syntax("peekchar wants inputstream argument") }
+            if let c = stream.peek() {
+                var bb = ""
+                bb.unicodeScalars.append(contentsOf: [c])
+                return Str(str:bb)
             }
-            print("No input stream set..")
             return env.NIL
         }
         define(name:"skipchar",args:(.param,1,1)) { args,env in
-            if let stream = args[0] as? InputStream {
-                _ = stream.next()
-            } else {
-                print("No input stream set...")
-            }
+            guard let stream = args[0] as? InputStream else { throw LispError.syntax("skiphar wants inputstream argument") }
+            _ = stream.next()
             return env.NIL
         }
         define(name:"flush",args:(.param,1,1)) { args,env in // TBD
-            if let stream = args[0] as? InputStream {
-                _ = stream.next()
-            } else {
-                print("No input stream set...")
-            }
+            guard let stream = args[0] as? InputStream else { throw LispError.syntax("flush wants inputstream argument") }
+            _ = stream.next()
             return env.NIL
         }
         define(name:"readfile",args:(.param,1,1)) { args,env in
-            guard let path = args[0] as? Str else { throw LispError.syntax("readfile wants string as path argument") }
+            guard let path = args[0] as? Str else { throw LispError.value("readfile wants string as path argument") }
             if case (false,let msg) = env.lisp.load(path.value) {
                 return Str(str:msg)
             }
             return env.TRUE
         }
         define(name:"readmacro",args:(.param,2,2)) { args,env in
-            guard let sym = args[0] as? Str, let fun = args[1] as? Func else {
-                throw LispError.value("readmacro wants string and function")
-            }
+            guard let sym = args[0] as? Str, let fun = args[1] as? Func else { throw LispError.value("readmacro wants string and function") }
             env.lisp.readMacros.updateValue(fun, forKey: sym.value)
             return sym
         }
@@ -275,12 +281,11 @@ extension LispState {
         define(name:"while",args:(.rest,1,100),special:true) { args,env in
             let NIL = env.NIL
             let test = args[0]
+            var res: Expr?
             while try !test.eval(env).isEq(NIL) {
-                for e in args[1...] {
-                    try _ = e.eval(env)
-                }
+                try args[1...].forEach() { res = try $0.eval(env) }
             }
-            return NIL
+            return res ?? NIL
         }
         define(name:"cond",args:(.rest,1,100),special:true) { args,env in
             let NIL = env.NIL
@@ -298,8 +303,23 @@ extension LispState {
             }
             return NIL
         }
+        define(name:"catch",args:(.param,2,2),special:true) { args,env in
+            let tag = try args[0].eval(env)
+            do {
+                return try args[1].eval(env)
+            } catch let error as LispError {
+                switch error {
+                case .user(_, let tt, let expr):
+                    if tt.isEq(tag) { return expr } else { throw error }
+                default: throw error
+                }
+            }
+        }
+        define(name:"throw",args:(.param,2,2)) { args,env in
+            throw LispError.user("throw",args[0] as! Atom,args[1])
+        }
         define(name:"gensym",args:(.param,0,0)) { args,env in
-            return env.lisp.intern(name:"<gensym\(Int.random(in: 1..<10000000))>")
+            return env.lisp.intern(name:"<gensym\(Int.random(in: 1..<10000000))>") // ToDo. Don't intern....
         }
         define(name:"clock",args:(.param,0,0)) { args,env in
             let date = Date()
@@ -308,7 +328,7 @@ extension LispState {
         define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"let*",args:(.rest,1,100),special:true,fun:let_star)
-        define(name:"let",args:(.rest,1,100),special:true,fun:let_star)
+        define(name:"let",args:(.rest,1,100),special:true,fun:let_std)
     }
 }
 

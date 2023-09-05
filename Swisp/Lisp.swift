@@ -6,7 +6,10 @@
 //
 
 import Foundation
-let UPPERCASED = true
+import BigNum
+
+let UPPERCASED = true         // All atoms are uppercased when read in - default.
+typealias NumType = BigNum    // Number type. Supports Double or BigNum (may work with Int)
 
 enum LispError: Error {
     case unbound(String)
@@ -15,6 +18,7 @@ enum LispError: Error {
     case syntax(String)
     case token(String)
     case parse(String)
+    case user(String,Atom,Expr)
 }
 
 class LispFiles {
@@ -33,7 +37,7 @@ class LispFiles {
     }
 }
 
-class SharedDictionary<K: Hashable, V> {
+class SharedDictionary<K: Hashable, V> { // Our environments/closures needs to share stuff...
     var dict : Dictionary<K, V>
     subscript(key : K) -> V? {
         get {
@@ -61,10 +65,10 @@ class Bindings {
 }
 
 class Env {
-    var lisp: LispState
+    var lisp: LispRuntime
     var NIL: Atom
     var TRUE: Atom
-    var bindings: Bindings? // = [[Atom:Expr]]()
+    var bindings: Bindings?
     var currInput: InputStream?
     var lastCall: Expr?
     var jitted = SharedDictionary<Cons,Expr>()
@@ -96,14 +100,22 @@ class Env {
         env.currInput = currInput
         return env
     }
-    init(_ lisp: LispState) {
+    init(_ lisp: LispRuntime) {
         self.lisp = lisp
         self.NIL = lisp.NIL
         self.TRUE = lisp.TRUE
     }
 }
 
-class LispState {
+/**
+    Creates a Lisp runtime for evaluating lisp expressions.
+ 
+  - Author:
+    JG
+  - Version:
+    0.5
+ */
+class LispRuntime {
     let uppercase = UPPERCASED
     var symbols : [String : Atom] = [:]
     var NIL = Atom(name:"nil")

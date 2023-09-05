@@ -8,7 +8,7 @@
 class Parser {
     typealias Token = Tokenizer.Token
     
-    var lisp: LispState
+    var lisp: LispRuntime
     var NIL: Atom
     var pushbackToken: Token?
     var lastToken: Token?
@@ -76,7 +76,7 @@ class Parser {
         }
     }
     
-    init(_ lisp: LispState) {
+    init(_ lisp: LispRuntime) {
         self.lisp = lisp
         self.NIL = lisp.NIL
     }
