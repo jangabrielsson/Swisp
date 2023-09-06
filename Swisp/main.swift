@@ -9,7 +9,8 @@ import Foundation
 
 print("Swisp v0.1")
 
-let Lisp = LispRuntime(trace:false)
+let Lisp = LispRuntime()
+//Lisp.logger.setFlag(.call,true)
 
 var input = ConsoleInputStream()
     
@@ -17,7 +18,6 @@ while true {
     print("Swisp>", terminator: "")
     do {
         let expr = try Lisp.read(input)
-        //try print("<\(expr)")
         try print(">\(Lisp.eval(expr))")
     } catch {
         print("Error: \(error)")

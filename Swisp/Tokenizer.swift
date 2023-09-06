@@ -64,13 +64,15 @@ class Tokenizer {
     
     static func symbolTokenizer(c: CType, s: InputStream) -> Token {
         var buff = [c]
+        var isNum = c == "-" || CharacterSet.decimalDigits.contains(c)
         while true {
             let c = s.peek() ?? " "
             if c == "_" || c == "*" || c == "-" || c == "&" || CharacterSet.alphanumerics.contains(c) {
+                isNum = isNum && CharacterSet.decimalDigits.contains(c)
                 buff.append(s.next())
             } else { break }
         }
-        return Token(token:.SYM,value:buff2str(buff),line:s.line)
+        return Token(token: isNum && buff.count > 1 ? .NUM : .SYM,value:buff2str(buff),line:s.line)
     }
     
     static func charTokenizer(c: CType, s: InputStream) -> Token {

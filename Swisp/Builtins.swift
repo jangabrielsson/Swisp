@@ -15,7 +15,7 @@ enum ParamType {
 }
 
 
-func lambda(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Func { // Builtins gets their arguments evaluated (from Func.call )
+func lambda(_ args: ArgsArray, _ env: Env, tail:Func?=nil) throws -> Func { // Builtins gets their arguments evaluated (from Func.call )
     var params = [Atom]()
     var optionals = [(Atom,Expr)]()
     var state: ParamType = .param
@@ -50,9 +50,10 @@ func lambda(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Func { // Bu
     }
     let body = args
     let myEnv = env.copy()
-    let nf = { [params,optionals,rest] (_ args0:ArgsList,_ env:Env, tail:Func?) throws -> Expr in
+    let nf = { [params,optionals,rest] (_ args0:ArgsArray,_ env:Env, tail:Func?) throws -> Expr in
         let myFunc = env.lastFunc
         if let tf = tail, tf === myFunc {
+            env.lisp.log(.tailcall,"\(tf)")
             tf.tailArgs = args0
             return tf
         }
@@ -92,11 +93,11 @@ func lambda(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Func { // Bu
     return fn
 }
 
-func let_star(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Expr {
+func let_stmt(_ args: ArgsArray, _ env: Env, rec:Bool, tail:Func?=nil) throws -> Expr {
     env.push()
     for p in args[0] as! Cons {
         let v = try p.car as! Atom
-        env.bind(v,env.NIL)
+        if rec { env.bind(v,env.NIL) }
         try env.bind(v,p.cdr.car.eval(env,nil))
     }
     var res: Expr?
@@ -105,24 +106,13 @@ func let_star(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Expr {
     return res ?? env.NIL
 }
 
-func let_std(_ args: ArgsList, _ env: Env, tail:Func?=nil) throws -> Expr {
-    env.push()
-    for p in args[0] as! Cons {
-        let v = try p.car as! Atom
-        try env.bind(v,p.cdr.car.eval(env,nil))
-    }
-    var res: Expr?
-    try args[1...].forEach() { res = try $0.eval(env,nil) }
-    env.pop()
-    return res ?? env.NIL
-}
-    
 extension LispRuntime {
     func setupBuiltins() {
         define(name:"+",args:(.param,2,2)) { args,_,_ in
             return try Number(num: args[0].num + args[1].num)
         }
-        define(name:"-",args:(.param,2,2)) { args,_,_ in
+        define(name:"-",args:(.optional,1,2)) { args,_,_ in
+            if args.count == 1 { return try Number(num: 0-args[0].num) }
             return try Number(num: args[0].num - args[1].num)
         }
         define(name:"*",args:(.param,2,2)) { args,_,_ in
@@ -130,6 +120,9 @@ extension LispRuntime {
         }
         define(name:"/",args:(.param,2,2)) { args,_,_ in
             return try Number(num: args[0].num / args[1].num)
+        }
+        define(name:"%",args:(.param,2,2)) { args,_,_ in
+            return try Number(num: args[0].num % args[1].num)
         }
         define(name:">",args:(.param,2,2)) { args,env,_ in
             return try args[0].num > args[1].num ? env.TRUE : env.NIL
@@ -175,10 +168,18 @@ extension LispRuntime {
             return args.last ?? env.NIL
         }
         define(name:"print",args:(.rest,0,0)) { args,env,tail in
+            var sp = ""
             for e in args {
-                print("\(e) ",terminator: "")
+                print("\(sp)\(e)",terminator: "")
+                sp=" "
             }
             return args.last ?? env.NIL
+        }
+        define(name:"unstr",args:(.param,1,1)) { args,env,tail in
+            if let s = args[0] as? Str {
+                return Str(str:s.value,quoted:false)
+            }
+            return args[0]
         }
         define(name:"eval",args:(.param,1,1)) { args,env,tail in
             return try args[0].eval(env,nil)
@@ -227,7 +228,8 @@ extension LispRuntime {
             }
             return Str(str:String(format: fmt.replacingOccurrences(of: "%s", with: "%@"), arguments:va))
         }
-        define(name:"read",args:(.param,1,1)) { args,env,tail in
+        define(name:"read",args:(.optional,0,1)) { args,env,tail in
+            if args.isEmpty { return try env.lisp.readExpr(env.lisp.stdin)! }
             guard let stream = args[0] as? InputStream else { throw LispError.syntax("read wants inputstream argument") }
             return try env.lisp.readExpr(stream)!
         }
@@ -245,7 +247,8 @@ extension LispRuntime {
             _ = stream.next()
             return env.NIL
         }
-        define(name:"flush",args:(.param,1,1)) { args,env,tail in // TBD
+        define(name:"flush",args:(.optional,0,1)) { args,env,tail in // TBD
+            if args.isEmpty { env.lisp.stdin.flushLine(); return env.NIL }
             guard let stream = args[0] as? InputStream else { throw LispError.syntax("flush wants inputstream argument") }
             _ = stream.next()
             return env.NIL
@@ -333,8 +336,13 @@ extension LispRuntime {
         }
         define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)
-        define(name:"let*",args:(.rest,1,100),special:true,fun:let_star)
-        define(name:"let",args:(.rest,1,100),special:true,fun:let_std)
+        
+        define(name:"let*",args:(.rest,1,100),special:true) { args,env,tail in
+            return try let_stmt(args,env,rec:true,tail:tail)
+        }
+        define(name:"let",args:(.rest,1,100),special:true) { args,env,tail in
+            return try let_stmt(args,env,rec:false,tail:tail)
+        }
     }
 }
-
+    

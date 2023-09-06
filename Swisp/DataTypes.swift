@@ -144,15 +144,17 @@ class Str : Expr {
     let type: DataType = .str
     var value: String
     var str: String { value }
-    public var description: String { "\"\(value)\"" }
+    let quoted: Bool
+    public var description: String { quoted ? "\"\(value)\"" : value }
     func isEq(_ expr: Expr) -> Bool {
         if let e = expr as? Str {
             return e.value == value
         }
         else { return false }
     }
-    init(str: String) {
+    init(str: String, quoted:Bool = true) {
         self.value = str
+        self.quoted = quoted
     }
 }
 
@@ -186,7 +188,8 @@ class Cons : Expr, Hashable, Equatable {
     }
 }
 
-typealias ArgsList = [Expr]
+typealias ArgsArray = [Expr]
+typealias BuiltinFunc = ([Expr],Env,Func?) throws -> Expr
 
 enum FuncType : String {
     case builtin = "builtin"
@@ -202,16 +205,15 @@ class Func : Expr { // Expr wrapper for a Swift function
     var ftype: FuncType = .builtin
     var nargs: (ParamType,Int,Int)
     func isFunc() -> Bool { return true }
-    let fun: ((ArgsList,Env,Func?) throws -> Expr)
+    let fun: BuiltinFunc
     func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr {
-        
         var args = [Expr]()
         if let list = exprList as? Cons {
             args = try list.toArray() { try special ? $0 : $0.eval(env,nil) }
         }
         switch nargs { // Check correct number of arguments
         case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
-        case (.optional,let min, let max): if args.count < min && args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
+        case (.optional,let min, let max): if args.count < min || args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
         case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }
         }
 
@@ -219,13 +221,13 @@ class Func : Expr { // Expr wrapper for a Swift function
         var res = try fun(args,env,tail)
         if ftype == .macro {            // macros evaluates their results (macroexpand)
             env.jitted[caller] = res    // "memoization for our macroexpanded code...
-            if env.lisp.trace { print("MACROEXPAND:\(res)") }
+            env.lisp.log(.macroexpand,"\(res)")
             res = try res.eval(env,nil)
         }
         return res
     }
     public var description: String { "<\(ftype.rawValue):\(name)>" }
-    init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping (ArgsList,Env,Func?) throws -> Expr) {
+    init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping BuiltinFunc) {
         self.fun = fun
         self.name = name
         self.special = special
@@ -248,7 +250,7 @@ extension Cons {
     
     func eval(_ env: Env, _ tail: Func? = nil) throws -> Expr {
         env.lastCall = carValue
-        if env.lisp.trace { print("CALL:\(carValue)\(cdrValue)") }
+        env.lisp.log(.call,"\(carValue)\(cdrValue)")
         if let code = env.jitted[self] {
             //print("Running jitted: \(code) - \(id) - \(self)")
             let res = try code.eval(env,nil)
@@ -258,7 +260,7 @@ extension Cons {
             let f = try carValue.eval(env,tail)
             env.lastCall = nil
             let res = try f.call(cdrValue,self,env,tail)
-            if env.lisp.trace { print("RETURN:\(carValue)\(cdrValue)=\(res)") }
+            env.lisp.log(.callreturn,"\(carValue)\(cdrValue)=\(res)")
             return res
         }
     }

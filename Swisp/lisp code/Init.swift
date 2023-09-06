@@ -200,7 +200,7 @@ let __init_lsp = """
     `(progn (setq ,tt (clock) ,res ,expr ,tt (- (clock) ,tt)) (format t "%.5f seconds\n" ,tt) ,res)))
     
 (defun format (stream format &rest args)
-    (print (apply strformat (cons format args))))
+    (print (unstr (apply strformat (cons format args)))))
 
 (defvar *0 nil)
 (defvar ** nil)
@@ -208,7 +208,7 @@ let __init_lsp = """
 
 (defun toploop()
   (setq *trace-silent* T)
-    (print "Lisp>")
+    (format t "Lisp>")
     (flush)
     (setq expr (read))
     (setq *trace-silent* NIL res (catch 'NIL (eval expr)))

@@ -28,7 +28,6 @@ class StringInputStream : InputStream {
         _ = lines.removeFirst()
         if !isEof() {
             line += 1
-            //print("LINE:\(line) - \(lines.first!)")
             s = lines.first!.startIndex
             e = lines.first!.endIndex
         }
@@ -62,13 +61,12 @@ class StringInputStream : InputStream {
         s = lines.first!.startIndex
         e = lines.first!.endIndex
         line = 1
-        //print("LINE:\(line) - \(lines.first!)")
     }
 }
 
 class FileInputStream : InputStream {
     let type: DataType = .stream
-    // ToDo
+    let path: String
     var line: Int
     func next() -> CType {
         return CType(0)
@@ -85,8 +83,9 @@ class FileInputStream : InputStream {
         return true
     }
     
-    public var description: String { return "<FileInputStream:\(ObjectIdentifier(self))>" }
-    init() {
+    public var description: String { return "<FileInputStream:\(path)>" }
+    init(_ path: String) {
+        self.path = path
         line = 1
     }
 }

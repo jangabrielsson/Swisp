@@ -7,9 +7,10 @@
 
 import Foundation
 import BigNum
+// import BigNumber, with type BInt, much slower....
 
-let UPPERCASED = true         // All atoms are uppercased when read in - default. Alternative, everything case-sensitive...
-typealias NumType = BigNum    // Number type. Supports Double or BigNum (may work with Int)
+let UPPERCASED = true       // All atoms are uppercased when read in - default. Alternative, everything case-sensitive...
+typealias NumType = BigNum    // Number type. Supports Double or BInt (support any type with the arithmentic operators and taking a string as initializer)
 
 enum LispError: Error {
     case unbound(String)
@@ -34,6 +35,26 @@ class LispFiles {
         register("/init.lsp",__init_lsp)
         register("/backquote.lsp",__backquote_lsp)
         register("/test.lsp",__test_lsp)
+    }
+}
+
+class LispLogger {
+    enum Flag :  String {
+        case debug = "Debug"
+        case trace = "Trace"
+        case warning = "Warning"
+        case error = "Error"
+        case macroexpand = "Macroexpand"
+        case call = "Call"
+        case callreturn = "Return"
+        case tailcall = "Tail-call"
+    }
+    var flags = [Flag:Bool]()
+    func setFlag(_ flag: Flag, _ value: Bool) {
+        flags[flag] = value
+    }
+    func log(_ flag: Flag, _ str:String) {
+        if flags[flag, default: false] { print("[\(flag.rawValue)]:\(str)") }
     }
 }
 
@@ -69,14 +90,15 @@ class Env {
     var NIL: Atom
     var TRUE: Atom
     var bindings: Bindings?
+    private(set) var frameDepth = 0
     var currInput: InputStream?
-    var tailCall: Func?
+    var tailCall: Func? // Forward through eval chain
     var lastFunc: Func?
     var lastCall: Expr?
     var jitted = SharedDictionary<Cons,Expr>()
     
-    func push() { bindings = Bindings(bindings) }
-    func pop() { bindings = bindings?.prev }
+    func push() { frameDepth += 1; bindings = Bindings(bindings) }
+    func pop() { frameDepth += 1; bindings = bindings?.prev }
     func bind(_ atom: Atom, _ expr: Expr) { bindings?.bind(atom,expr) }
     func lookup(_ atom: Atom) -> Expr? {
         var b = bindings
@@ -97,6 +119,7 @@ class Env {
     func copy() -> Env {
         let env = Env(lisp)
         env.bindings = bindings
+        env.frameDepth = frameDepth
         env.jitted = jitted
         env.lastCall = lastCall
         env.tailCall = tailCall
@@ -126,10 +149,12 @@ class LispRuntime {
     var QUOTE = Atom(name:"quote")
     var OPTIONAL = Atom(name:"&optional")
     var REST = Atom(name:"&rest")
+    var logger = LispLogger()
+    lazy var log: (LispLogger.Flag,String) -> () = { logger.log }()
+    let stdin = ConsoleInputStream()
     lazy var parser: Parser = {
         return Parser(self)
     }()
-    var trace: Bool = false
     var readMacros = [String:Func]()
     
     func symName(_ str: String) -> String { uppercase ? str.uppercased() : str }
@@ -144,7 +169,7 @@ class LispRuntime {
         return atom
     }
     
-    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping (ArgsList,Env,Func?) throws -> Expr) {
+    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping BuiltinFunc) {
         let funw = Func(name:name,args:args,special:special,fun:fun)
         intern(name:name).set(funw)
     }
@@ -153,7 +178,7 @@ class LispRuntime {
         intern(name:name)
     }
     
-    init(loadLib:Bool = true, trace:Bool = false) {
+    init(loadLib:Bool = true) {
         NIL.set(NIL)
         TRUE.set(TRUE)
         symbols[NIL.name] = NIL
@@ -162,7 +187,6 @@ class LispRuntime {
         symbols[OPTIONAL.name]=OPTIONAL
         symbols[REST.name] = REST
         define(name:"true").set(TRUE)
-        self.trace = trace
         setupBuiltins()
         if loadLib {
             if case (false,let msg) = load("/init.lsp") {
@@ -185,7 +209,6 @@ class LispRuntime {
             while true {
                 if let expr = try readExpr(stream) {
                     if expr.isNIL() { break }
-                    //print("LR<\(expr)")
                     let res = try eval(expr)
                     if true {
                         print("\(res)")

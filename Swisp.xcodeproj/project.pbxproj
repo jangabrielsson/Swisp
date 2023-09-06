@@ -13,7 +13,10 @@
 		E6D41A3B2AA1CD45004E5A67 /* Backquote.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A392AA1CD45004E5A67 /* Backquote.swift */; };
 		E6D41A3E2AA3D18C004E5A67 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A3C2AA3D18C004E5A67 /* Test.swift */; };
 		E6D41A3F2AA3D28E004E5A67 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D41A3C2AA3D18C004E5A67 /* Test.swift */; };
-		E6D41A432AA60D28004E5A67 /* BigNum in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A422AA60D28004E5A67 /* BigNum */; };
+		E6D41A492AA905E4004E5A67 /* BigNumber in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A482AA905E4004E5A67 /* BigNumber */; };
+		E6D41A4C2AA91358004E5A67 /* BigNum in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A4B2AA91358004E5A67 /* BigNum */; };
+		E6D41A4F2AA91444004E5A67 /* BigNumber in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A4E2AA91444004E5A67 /* BigNumber */; };
+		E6D41A512AA9144C004E5A67 /* BigNum in Frameworks */ = {isa = PBXBuildFile; productRef = E6D41A502AA9144C004E5A67 /* BigNum */; };
 		E6D62BA22A9E27EC004A4F63 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BA12A9E27EC004A4F63 /* main.swift */; };
 		E6D62BA92A9E2803004A4F63 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BA82A9E2803004A4F63 /* Parser.swift */; };
 		E6D62BAB2A9E2852004A4F63 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D62BAA2A9E2852004A4F63 /* Tokenizer.swift */; };
@@ -64,7 +67,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E6D41A432AA60D28004E5A67 /* BigNum in Frameworks */,
+				E6D41A4C2AA91358004E5A67 /* BigNum in Frameworks */,
+				E6D41A492AA905E4004E5A67 /* BigNumber in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +76,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E6D41A512AA9144C004E5A67 /* BigNum in Frameworks */,
+				E6D41A4F2AA91444004E5A67 /* BigNumber in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,12 +94,20 @@
 			path = "lisp code";
 			sourceTree = "<group>";
 		};
+		E6D41A4D2AA91444004E5A67 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E6D62B952A9E27EC004A4F63 = {
 			isa = PBXGroup;
 			children = (
 				E6D62BA02A9E27EC004A4F63 /* Swisp */,
 				E6D62BD72A9F2EB2004A4F63 /* SwispTest */,
 				E6D62B9F2A9E27EC004A4F63 /* Products */,
+				E6D41A4D2AA91444004E5A67 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -147,7 +161,8 @@
 			);
 			name = Swisp;
 			packageProductDependencies = (
-				E6D41A422AA60D28004E5A67 /* BigNum */,
+				E6D41A482AA905E4004E5A67 /* BigNumber */,
+				E6D41A4B2AA91358004E5A67 /* BigNum */,
 			);
 			productName = Swisp;
 			productReference = E6D62B9E2A9E27EC004A4F63 /* Swisp */;
@@ -166,6 +181,10 @@
 			dependencies = (
 			);
 			name = SwispTest;
+			packageProductDependencies = (
+				E6D41A4E2AA91444004E5A67 /* BigNumber */,
+				E6D41A502AA9144C004E5A67 /* BigNum */,
+			);
 			productName = SwispTest;
 			productReference = E6D62BD62A9F2EB2004A4F63 /* SwispTest.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -198,7 +217,8 @@
 			);
 			mainGroup = E6D62B952A9E27EC004A4F63;
 			packageReferences = (
-				E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */,
+				E6D41A472AA905E4004E5A67 /* XCRemoteSwiftPackageReference "Swift-BigInt" */,
+				E6D41A4A2AA91358004E5A67 /* XCRemoteSwiftPackageReference "big-num" */,
 			);
 			productRefGroup = E6D62B9F2A9E27EC004A4F63 /* Products */;
 			projectDirPath = "";
@@ -468,7 +488,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */ = {
+		E6D41A472AA905E4004E5A67 /* XCRemoteSwiftPackageReference "Swift-BigInt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mkrd/Swift-BigInt";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		E6D41A4A2AA91358004E5A67 /* XCRemoteSwiftPackageReference "big-num" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/adam-fowler/big-num";
 			requirement = {
@@ -479,9 +507,24 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E6D41A422AA60D28004E5A67 /* BigNum */ = {
+		E6D41A482AA905E4004E5A67 /* BigNumber */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E6D41A412AA60D28004E5A67 /* XCRemoteSwiftPackageReference "big-num" */;
+			package = E6D41A472AA905E4004E5A67 /* XCRemoteSwiftPackageReference "Swift-BigInt" */;
+			productName = BigNumber;
+		};
+		E6D41A4B2AA91358004E5A67 /* BigNum */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E6D41A4A2AA91358004E5A67 /* XCRemoteSwiftPackageReference "big-num" */;
+			productName = BigNum;
+		};
+		E6D41A4E2AA91444004E5A67 /* BigNumber */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E6D41A472AA905E4004E5A67 /* XCRemoteSwiftPackageReference "Swift-BigInt" */;
+			productName = BigNumber;
+		};
+		E6D41A502AA9144C004E5A67 /* BigNum */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E6D41A4A2AA91358004E5A67 /* XCRemoteSwiftPackageReference "big-num" */;
 			productName = BigNum;
 		};
 /* End XCSwiftPackageProductDependency section */

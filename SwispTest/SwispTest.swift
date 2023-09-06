@@ -53,7 +53,7 @@ final class SwispTest: XCTestCase {
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
         measure {
-            try? _ = Lisp.eval("(append '(a b c d) '(e))")
+            try? _ = Lisp.eval("(fact2 1000)")
         }
     }
     
