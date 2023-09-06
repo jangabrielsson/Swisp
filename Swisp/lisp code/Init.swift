@@ -14,8 +14,8 @@ let __init_lsp = """
 (defun null(x) (eq x nil))
 (defun list (&rest l) l)
 (defun not(x) (if x nil t))
-(defmacro and(x y) (list 'if x y nil))
-;;(defmacro or(x y) (list 'if x x y)) ;; redefined later
+;;(defmacro and(x y) (list 'if x y nil)) ;; built-in
+;;(defmacro or(x y) (list 'if x x y))    ;; built-in
 
 (defun equal(x y)
    (if (eq x y) t
@@ -116,7 +116,7 @@ let __init_lsp = """
 (defmacro unless (condition &rest body)
   `(if (not ,condition) (progn ,@body)))
 
-;;(defmacro or(x y) (let ((s (gensym))) `(let ((,s ,x)) (if ,s ,s ,y))))
+;;(defmacro or(x y) (let ((s (gensym))) `(let ((,s ,x)) (if ,s ,s ,y)))) ;; built-in
 (defmacro first(x)`(car ,x))
 (defmacro rest(x)`(cdr ,x))
 (defmacro second(x)`(car (cdr ,x)))
@@ -220,5 +220,10 @@ let __init_lsp = """
     (format t "%s\n" res)
     (toploop)
 )
+
+(defun fact1(x) (if (eq x 0) 1 (* x (fact1 (- x 1)))))
+(defun fact2(x) (fact3 x 1))
+(defun fact3(x acc) (if (eq x 0) acc (fact3 (- x 1) (* x acc))))
+
 """
 

@@ -28,7 +28,7 @@ class Parser {
             let fun = lisp.readMacros[t.value]!.fun
             let env = Env(lisp)
             env.currInput = tk.stream
-            let expr = try fun([tk.stream],env)
+            let expr = try fun([tk.stream],env,nil)
             return expr
         }
         return nil

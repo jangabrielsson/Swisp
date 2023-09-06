@@ -8,7 +8,7 @@
 import Foundation
 import BigNum
 
-let UPPERCASED = true         // All atoms are uppercased when read in - default.
+let UPPERCASED = true         // All atoms are uppercased when read in - default. Alternative, everything case-sensitive...
 typealias NumType = BigNum    // Number type. Supports Double or BigNum (may work with Int)
 
 enum LispError: Error {
@@ -37,7 +37,7 @@ class LispFiles {
     }
 }
 
-class SharedDictionary<K: Hashable, V> { // Our environments/closures needs to share stuff...
+class SharedDictionary<K: Hashable, V> { // Our environments/closures needs to share stuff... only used for macroexpanded expressions for now
     var dict : Dictionary<K, V>
     subscript(key : K) -> V? {
         get {
@@ -70,6 +70,8 @@ class Env {
     var TRUE: Atom
     var bindings: Bindings?
     var currInput: InputStream?
+    var tailCall: Func?
+    var lastFunc: Func?
     var lastCall: Expr?
     var jitted = SharedDictionary<Cons,Expr>()
     
@@ -95,8 +97,9 @@ class Env {
     func copy() -> Env {
         let env = Env(lisp)
         env.bindings = bindings
-        //env.jitted = jitted
+        env.jitted = jitted
         env.lastCall = lastCall
+        env.tailCall = tailCall
         env.currInput = currInput
         return env
     }
@@ -118,7 +121,7 @@ class Env {
 class LispRuntime {
     let uppercase = UPPERCASED
     var symbols : [String : Atom] = [:]
-    var NIL = Atom(name:"nil")
+    var NIL = Atom(name:"nil",type:.null)
     var TRUE = Atom(name:"t")
     var QUOTE = Atom(name:"quote")
     var OPTIONAL = Atom(name:"&optional")
@@ -141,7 +144,7 @@ class LispRuntime {
         return atom
     }
     
-    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping (ArgsList,Env) throws -> Expr) {
+    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping (ArgsList,Env,Func?) throws -> Expr) {
         let funw = Func(name:name,args:args,special:special,fun:fun)
         intern(name:name).set(funw)
     }
@@ -181,7 +184,7 @@ class LispRuntime {
         do {
             while true {
                 if let expr = try readExpr(stream) {
-                    if expr.isEq(NIL) { break }
+                    if expr.isNIL() { break }
                     //print("LR<\(expr)")
                     let res = try eval(expr)
                     if true {
@@ -201,7 +204,7 @@ class LispRuntime {
     }
     
     func eval(_ expr: Expr) throws -> Expr {
-        return try expr.eval(Env(self))
+        return try expr.eval(Env(self),nil)
     }
     
     func eval(_ str: String) throws -> Expr {

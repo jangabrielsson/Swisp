@@ -11,6 +11,7 @@ import BigNum
 enum DataType {
     case number
     case atom
+    case null
     case cons
     case str
     case fun
@@ -25,8 +26,8 @@ protocol Expr: CustomStringConvertible {
     var num: NumType { get throws }
     var binding: Expr { get throws }
     var funVal: Func { get throws }
-    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr
-    func eval(_ env: Env) throws -> Expr
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr
+    func eval(_ env: Env, _ tail: Func?) throws -> Expr
     func set(_ value: Expr) throws
     func isNIL() -> Bool
     func isEq(_ expr: Expr) -> Bool
@@ -63,7 +64,7 @@ extension Expr {
             throw LispError.value("\(self) not a function")
         }
     }
-    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr {
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr {
         throw LispError.value("\(env.lastCall ?? self) not a function")
     }
     
@@ -74,7 +75,7 @@ extension Expr {
     func isEq(_ expr: Expr) -> Bool {
         return expr as AnyObject === self as AnyObject
     }
-    func eval(_ env: Env) throws -> Expr {
+    func eval(_ env: Env, _ tail :Func?) throws -> Expr {
         return self
     }
     //public var description: String { return "<Expr>" }
@@ -106,7 +107,7 @@ class Number : Expr {
 }
 
 class Atom : Expr, Hashable {
-    let type: DataType = .atom
+    let type: DataType
     var name: String
     var val: Expr?
     var funVal: Func?
@@ -117,8 +118,8 @@ class Atom : Expr, Hashable {
     func setf(_ f: Func) {
         funVal = f
     }
-    func isNIL() -> Bool { return self.name == (UPPERCASED ? "NIL" : "nil") } // Urrrk
-    func eval(_ env: Env) throws -> Expr {
+    func isNIL() -> Bool { return self.type == .null }
+    func eval(_ env: Env, _ tail: Func?=nil) throws -> Expr {
         if let val = env.lookup(self) {
             return val
         }
@@ -132,8 +133,9 @@ class Atom : Expr, Hashable {
         return lhs.name == rhs.name
     }
     public var description: String { name }
-    init(name: String, value: Expr? = nil) {
+    init(name: String, value: Expr? = nil, type:DataType = .atom) {
         self.name = UPPERCASED ? name.uppercased() : name
+        self.type = type
         self.val = value
     }
 }
@@ -196,31 +198,34 @@ class Func : Expr { // Expr wrapper for a Swift function
     let type: DataType = .fun
     var name: String
     var special: Bool
+    var tailArgs: [Expr]?
     var ftype: FuncType = .builtin
     var nargs: (ParamType,Int,Int)
     func isFunc() -> Bool { return true }
-    let fun: ((ArgsList,Env) throws -> Expr)
-    func call(_ exprList: Expr, _ caller: Cons, _ env: Env) throws -> Expr {
+    let fun: ((ArgsList,Env,Func?) throws -> Expr)
+    func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr {
+        
         var args = [Expr]()
         if let list = exprList as? Cons {
-            args = try list.toArray() { try special ? $0 : $0.eval(env) }
+            args = try list.toArray() { try special ? $0 : $0.eval(env,nil) }
         }
         switch nargs { // Check correct number of arguments
         case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
         case (.optional,let min, let max): if args.count < min && args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
         case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }
         }
-        var res = try fun(args,env)
+
+        env.lastFunc = self
+        var res = try fun(args,env,tail)
         if ftype == .macro {            // macros evaluates their results (macroexpand)
-            //print("Save jitted:\(res) - \(caller.id) - \(caller)")
             env.jitted[caller] = res    // "memoization for our macroexpanded code...
             if env.lisp.trace { print("MACROEXPAND:\(res)") }
-            res = try res.eval(env)
+            res = try res.eval(env,nil)
         }
         return res
     }
     public var description: String { "<\(ftype.rawValue):\(name)>" }
-    init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping (ArgsList,Env) throws -> Expr) {
+    init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping (ArgsList,Env,Func?) throws -> Expr) {
         self.fun = fun
         self.name = name
         self.special = special
@@ -241,18 +246,18 @@ extension Cons {
         return res
     }
     
-    func eval(_ env: Env) throws -> Expr {
+    func eval(_ env: Env, _ tail: Func? = nil) throws -> Expr {
         env.lastCall = carValue
         if env.lisp.trace { print("CALL:\(carValue)\(cdrValue)") }
         if let code = env.jitted[self] {
             //print("Running jitted: \(code) - \(id) - \(self)")
-            let res = try code.eval(env)
+            let res = try code.eval(env,nil)
             env.lastCall = nil
             return res
         } else {
-            let f = try carValue.eval(env)
+            let f = try carValue.eval(env,tail)
             env.lastCall = nil
-            let res = try f.call(cdrValue,self,env)
+            let res = try f.call(cdrValue,self,env,tail)
             if env.lisp.trace { print("RETURN:\(carValue)\(cdrValue)=\(res)") }
             return res
         }
@@ -260,13 +265,10 @@ extension Cons {
 }
 
 struct ConsIterator: IteratorProtocol {
-
     private var p: Cons?
-
     init(_ collection: Cons) {
         self.p = collection
     }
-
     mutating func next() -> Expr? {
         if let pn = p {
             let v = pn.car
