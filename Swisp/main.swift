@@ -19,7 +19,7 @@ let Lisp = LispRuntime()
 //Lisp.logger.setFlag(.call,true)
 //Lisp.logger.setFlag(.callreturn,true)
 //Lisp.logger.setFlag(.tailcall,true)
-Lisp.logger.setFlag(.readmacro,true)
+//Lisp.logger.setFlag(.readmacro,true)
 
 var input = ConsoleInputStream()
     
