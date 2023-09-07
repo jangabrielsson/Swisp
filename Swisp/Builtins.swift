@@ -328,14 +328,19 @@ extension LispRuntime {
             throw LispError.user("throw",args[0] as! Atom,args[1])
         }
         define(name:"gensym",args:(.param,0,0)) { args,env,tail in
-            return env.lisp.intern(name:"<gensym\(Int.random(in: 1..<10000000))>") // ToDo. Don't intern....
+            return Atom(name:"<gensym\(Int.random(in: 10000000..<99999999))>")
         }
         define(name:"clock",args:(.param,0,0)) { args,env,tail in
             let date = Date()
-            return Number(num:date.timeIntervalSince1970 * 1000)
+            return Number(num:Int(date.timeIntervalSince1970 * 1000))
         }
         define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)
+        define(name:"nlambda",args:(.rest,1,100),special:true) { args,env,tail in
+            let nl = try let_stmt(args,env,rec:true,tail:tail) as! Func
+            nl.special = true
+            return nl
+        }
         
         define(name:"let*",args:(.rest,1,100),special:true) { args,env,tail in
             return try let_stmt(args,env,rec:true,tail:tail)

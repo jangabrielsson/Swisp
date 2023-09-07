@@ -54,7 +54,7 @@ class LispLogger {
         flags[flag] = value
     }
     func log(_ flag: Flag, _ str:String) {
-        if flags[flag, default: false] { print("[\(flag.rawValue)]:\(str)") }
+        if flags[flag, default: false] { print("[\(flag.rawValue)]: \(str)") }
     }
 }
 

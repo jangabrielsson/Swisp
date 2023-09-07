@@ -11,6 +11,14 @@ print("Swisp v0.1")
 
 let Lisp = LispRuntime()
 //Lisp.logger.setFlag(.call,true)
+//Lisp.logger.setFlag(.debug,true)    // not used
+//Lisp.logger.setFlag(.trace,true)    // not used
+//Lisp.logger.setFlag(.warning,true)  // not used
+//Lisp.logger.setFlag(.error,true)    // not used
+//Lisp.logger.setFlag(.macroexpand,true)
+//Lisp.logger.setFlag(.call,true)
+//Lisp.logger.setFlag(.callreturn,true)
+//Lisp.logger.setFlag(.tailcall,true)
 
 var input = ConsoleInputStream()
     

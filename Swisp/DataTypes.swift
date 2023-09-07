@@ -11,7 +11,7 @@ import BigNum
 enum DataType {
     case number
     case atom
-    case null
+    case null   // Special type of atom. Easier to recognize...
     case cons
     case str
     case fun
@@ -181,7 +181,7 @@ class Cons : Expr, Hashable, Equatable {
         return lhs === rhs
     }
     func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self)) // ToDo BUG. ObjId is reused when object is GC'ed...
+        hasher.combine(ObjectIdentifier(self)) // ToDo Problematic. ObjId is reused when object is GC'ed...
     }
     init(car: Expr, cdr: Expr) {
         carValue = car; cdrValue = cdr
@@ -211,7 +211,7 @@ class Func : Expr { // Expr wrapper for a Swift function
         if let list = exprList as? Cons {
             args = try list.toArray() { try special ? $0 : $0.eval(env,nil) }
         }
-        switch nargs { // Check correct number of arguments
+        switch nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
         case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
         case (.optional,let min, let max): if args.count < min || args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
         case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }

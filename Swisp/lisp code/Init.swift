@@ -2,7 +2,6 @@ let __init_lsp = """
 ;;;; Standard lisp functions
 (setq *trace-level* 0)
 (setq *log-level* 2)
-(defun test() (readfile "/test.lsp"))
 
 (defmacro defparameter(var val)(list 'setq var val))
 (defmacro defvar(var val)(list 'setq var val))
@@ -197,7 +196,7 @@ let __init_lsp = """
 
 (defmacro time (expr)
   (let ((tt (gensym)) (res (gensym)))
-    `(progn (setq ,tt (clock) ,res ,expr ,tt (- (clock) ,tt)) (format t "%.5f seconds\n" ,tt) ,res)))
+    `(progn (setq ,tt (clock) ,res ,expr ,tt (- (clock) ,tt)) (format t "%s milliseconds\n" ,tt) ,res)))
     
 (defun format (stream format &rest args)
     (print (unstr (apply strformat (cons format args)))))
