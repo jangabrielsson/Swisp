@@ -7,9 +7,6 @@ let __init_lsp = """
 (defmacro defvar(var val)(list 'setq var val))
 (defmacro defconst(var val)(list 'setq var val))
 
-(defun function(x) x)
-(defun apply(x l) (eval (cons x l)))
-
 (defun null(x) (eq x nil))
 (defun list (&rest l) l)
 (defun not(x) (if x nil t))
@@ -19,8 +16,8 @@ let __init_lsp = """
 (defun equal(x y)
    (if (eq x y) t
        (if (and (consp x) (consp y))
-           (and (equal (car x)(car y))
-                   (equal (cdr x)(cdr y))))))
+           (and (equal (car x) (car y))
+                   (equal (cdr x) (cdr y))))))
 
 
 (defmacro when (test &rest body)
@@ -75,13 +72,6 @@ let __init_lsp = """
        (if (eq i 0) (car l)
            (nth (- i 1) (cdr l)))))
 
-(defun list* (&rest l)
-    (let* ((fun (fn (x)
-            (if (null x) x
-               (if (null (cdr x)) (car x)
-                  (cons (car x) (fun (cdr x))))))))
-     (fun l)))
-
 (defun last (l)
     (if (null l) l
         (if (null (cdr l)) l
@@ -101,21 +91,28 @@ let __init_lsp = """
 
 (readmacro "`" (lambda(stream) (list 'backquote (read stream))))
 (readmacro "," (lambda(stream)
-    (let* ((c (peekchar stream)))
+    (let ((c (peekchar stream)))
        (if (eq c ".")
-           (progn (skipchar stream) (list '*back-comma-dot* (read)))
+           (progn (skipchar stream) (list '*back-comma-dot* (read stream)))
            (if (eq c "@") (progn (skipchar stream) (list '*back-comma-at* (read stream)))
                           (list '*back-comma* (read stream))))
     )
   )
 )
+(readmacro "#" (lambda(stream) (list 'function (read stream))))
+
+(defun list* (&rest l)
+    (let* ((fun (fn (x)
+            (if (null x) x
+               (if (null (cdr x)) (car x)
+                  (cons (car x) (funcall fun (cdr x))))))))
+     (funcall fun l)))
 
 (require 'backquote "/backquote.lsp")
 
 (defmacro unless (condition &rest body)
   `(if (not ,condition) (progn ,@body)))
 
-;;(defmacro or(x y) (let ((s (gensym))) `(let ((,s ,x)) (if ,s ,s ,y)))) ;; built-in
 (defmacro first(x)`(car ,x))
 (defmacro rest(x)`(cdr ,x))
 (defmacro second(x)`(car (cdr ,x)))
@@ -127,7 +124,7 @@ let __init_lsp = """
 (defmacro cdddr(x) `(cdr (cdr (cdr ,x))))
 (defmacro cadar(x)`(car (cdr (car ,x))))
 
-(defmacro funcall(f &rest args) `(apply ,f (list ,@args)))
+;;(defun apply(f arglist) `(funcall ,f ,(eval @arglist))) ;; builtin
 
 (defmacro dolist(params &rest body)
     (let ((var (first params))(ll (gensym)))
@@ -156,8 +153,8 @@ let __init_lsp = """
 (defun map(f l)
   (let* ((fun (fn (l)
           (if l
-              (cons (f (car l)) (fun (cdr l)))))))
-    (fun l)))
+              (cons (f (car l)) (funcall fun (cdr l)))))))
+    (funcall fun l)))
 
 (defun foldl(f e l)
   (let* ((fun (fn (l)

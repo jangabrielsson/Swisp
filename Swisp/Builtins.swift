@@ -274,7 +274,7 @@ extension LispRuntime {
             let fun = try lambda.eval(env) as! Func
             fun.name = name.name
             fun.ftype = .fun
-            name.set(fun)
+            name.setf(fun)
             return name
         }
         define(name:"defmacro",args:(.rest,2,100),special:true) { args,env,tail in
@@ -284,7 +284,7 @@ extension LispRuntime {
             fun.ftype = .macro
             fun.special = true
             fun.name = name.name
-            name.set(fun)
+            name.setf(fun)
             return name
         }
         define(name:"while",args:(.rest,1,100),special:true) { args,env,tail in
@@ -295,6 +295,22 @@ extension LispRuntime {
                 try args[1...].forEach() { res = try $0.eval(env,nil) }
             }
             return res ?? NIL
+        }
+        define(name:"cond",args:(.rest,1,100),special:true) { args,env,tail in
+            let NIL = env.NIL
+            for e in args {
+                if let c = e as? Cons {
+                    if try !c.carValue.eval(env,nil).isNIL() {
+                        let b = c.cdrValue as! Cons
+                        var r: Expr?
+                        for v in b {
+                            r = try v.eval(env,nil)
+                        }
+                        return r ?? NIL
+                    }
+                } else { throw LispError.syntax("Bad COND syntax") }
+            }
+            return NIL
         }
         define(name:"cond",args:(.rest,1,100),special:true) { args,env,tail in
             let NIL = env.NIL
@@ -333,6 +349,46 @@ extension LispRuntime {
         define(name:"clock",args:(.param,0,0)) { args,env,tail in
             let date = Date()
             return Number(num:Int(date.timeIntervalSince1970 * 1000))
+        }
+        define(name:"function",args:(.param,1,1)) { args,env,tail in
+            let e = args[0]
+            if let c = e as? Cons, c.carValue.isEq(env.lisp.intern(name:"lambda")) {
+                var i = c.makeIterator()
+                var nargs = [Expr]()
+                _ = i.next() // skip lambda
+                while let a = i.next() { nargs.append(a) }
+                return try lambda(nargs,env,tail:tail)
+            }
+            if let f = e as? Func {
+                return f
+            }
+            return try e.funVal
+        }
+        define(name:"funcall",args:(.rest,1,1),special:true) { args,env,tail in
+            let f = try args[0].eval(env,nil).funVal
+            var nargs = try args[1..<args.count].map() { try f.special ? $0 : $0.eval(env,nil) }
+            switch f.nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
+            case (.param,let min, _): if nargs.count != min { throw LispError.param("\(f) expecting \(min) args") }
+            case (.optional,let min, let max): if nargs.count < min || nargs.count > max { throw LispError.param("\(f) expecting \(min)-\(max) args") }
+            case (.rest,let min, _): if nargs.count < min { throw LispError.param("\(f) expecting at least \(min) args") }
+            }
+            env.lastFunc = f
+            var res = try f.fun(nargs,env,tail)
+            return res
+        }
+        define(name:"apply",args:(.param,2,2)) { args,env,tail in
+            let f = try args[0].funVal
+            if args[1].isEq(env.NIL) { return try f.fun([],env,tail) }
+            guard let c = args[1] as? Cons else { throw LispError.syntax("Apply wants nil/list as second argument")}
+            var nargs = c.map() { $0 }
+            switch f.nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
+            case (.param,let min, _): if nargs.count != min { throw LispError.param("\(f) expecting \(min) args") }
+            case (.optional,let min, let max): if nargs.count < min || nargs.count > max { throw LispError.param("\(f) expecting \(min)-\(max) args") }
+            case (.rest,let min, _): if nargs.count < min { throw LispError.param("\(f) expecting at least \(min) args") }
+            }
+            env.lastFunc = f
+            var res = try f.fun(nargs,env,tail)
+            return res
         }
         define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)

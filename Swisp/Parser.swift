@@ -29,6 +29,7 @@ class Parser {
             let env = Env(lisp)
             env.currInput = tk.stream
             let expr = try fun([tk.stream],env,nil)
+            lisp.log(.readmacro,"/\(t.value)/\(expr)")
             return expr
         }
         return nil

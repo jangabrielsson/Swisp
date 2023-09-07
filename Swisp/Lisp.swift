@@ -14,6 +14,7 @@ typealias NumType = BigNum    // Number type. Supports Double or BInt (support a
 
 enum LispError: Error {
     case unbound(String)
+    case unboundFun(String)
     case value(String)
     case param(String)
     case syntax(String)
@@ -48,6 +49,7 @@ class LispLogger {
         case call = "Call"
         case callreturn = "Return"
         case tailcall = "Tail-call"
+        case readmacro = "Readmacro"
     }
     var flags = [Flag:Bool]()
     func setFlag(_ flag: Flag, _ value: Bool) {
@@ -171,7 +173,7 @@ class LispRuntime {
     
     func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping BuiltinFunc) {
         let funw = Func(name:name,args:args,special:special,fun:fun)
-        intern(name:name).set(funw)
+        intern(name:name).setf(funw)
     }
         
     func define(name:String) -> Atom {

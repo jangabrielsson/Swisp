@@ -110,13 +110,19 @@ class Atom : Expr, Hashable {
     let type: DataType
     var name: String
     var val: Expr?
-    var funVal: Func?
+    private (set) var fun: Func?
     var binding: Expr { val! }
     func set(_ value: Expr) {
         val = value
     }
     func setf(_ f: Func) {
-        funVal = f
+        fun = f
+    }
+    var funVal: Func {
+        get throws {
+            guard fun != nil else { throw LispError.unboundFun("Atom \(self)") }
+            return fun!
+        }
     }
     func isNIL() -> Bool { return self.type == .null }
     func eval(_ env: Env, _ tail: Func?=nil) throws -> Expr {
@@ -203,6 +209,7 @@ class Func : Expr { // Expr wrapper for a Swift function
     var special: Bool
     var tailArgs: [Expr]?
     var ftype: FuncType = .builtin
+    var funVal: Func { return self }
     var nargs: (ParamType,Int,Int)
     func isFunc() -> Bool { return true }
     let fun: BuiltinFunc
@@ -257,7 +264,7 @@ extension Cons {
             env.lastCall = nil
             return res
         } else {
-            let f = try carValue.eval(env,tail)
+            let f = try carValue.funVal
             env.lastCall = nil
             let res = try f.call(cdrValue,self,env,tail)
             env.lisp.log(.callreturn,"\(carValue)\(cdrValue)=\(res)")
