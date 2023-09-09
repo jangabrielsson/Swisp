@@ -14,7 +14,6 @@ enum ParamType {
     case rest
 }
 
-
 func lambda(_ args: ArgsArray, _ env: Env, tail:Func?=nil) throws -> Func { // Builtins gets their arguments evaluated (from Func.call )
     var params = [Atom]()
     var optionals = [(Atom,Expr)]()
@@ -50,43 +49,47 @@ func lambda(_ args: ArgsArray, _ env: Env, tail:Func?=nil) throws -> Func { // B
     }
     let body = args
     let myEnv = env.copy()
-    let nf = { [params,optionals,rest] (_ args0:ArgsArray,_ env:Env, tail:Func?) throws -> Expr in
+    let nf = { [params,optionals,myEnv,rest] (_ args0:ArgsArray,_ env:Env, tail:Func?) throws -> Expr in
         let myFunc = env.lastFunc
+        let cenv = env.closure ? myEnv : env
+//        print("LC \(myFunc):")
+//        cenv.dumpfuns()
+        
         if let tf = tail, tf === myFunc {
             env.lisp.log(.tailcall,"\(tf)")
             tf.tailArgs = args0
             return tf
         }
         var args = args0
-        myEnv.push()
+        cenv.push()
         while true {
             var n = 0
             if args.count < params.count { throw LispError.param("Too few parameters, expected \(params.count)") }
-            for i in n..<params.count { myEnv.bind(params[i],args[i]) }
+            for i in n..<params.count { cenv.bind(params[i],args[i]) }
             n = params.count
             for i in 0..<optionals.count {
                 let (v,e) = optionals[i]
-                myEnv.bind(v,n+i < args.count ? args[n+i] : try e.eval(myEnv,nil))
+                cenv.bind(v,n+i < args.count ? args[n+i] : try e.eval(cenv,nil))
             }
             n += optionals.count
             if let rest {
                 if args.count > n {
-                    let val = try myEnv.lisp.arrayToList(args[n...])
-                    myEnv.bind(rest,val)
-                } else { myEnv.bind(rest,myEnv.NIL) }
+                    let val = try cenv.lisp.arrayToList(args[n...])
+                    cenv.bind(rest,val)
+                } else { cenv.bind(rest,cenv.NIL) }
             }
             var r: Expr?
             let np = body.count
             if np > 0 {
-                try body[1..<np-1].forEach() { _ = try $0.eval(myEnv,nil) }
-                r = try body.last!.eval(myEnv,myFunc)
+                try body[1..<np-1].forEach() { _ = try $0.eval(cenv,nil) }
+                r = try body.last!.eval(cenv,myFunc)
             }
             if let tf = r as? Func, tf === myFunc { // tail recursive call - loop...
                 args = tf.tailArgs!
                 continue
             }
-            myEnv.pop()
-            return r ?? myEnv.NIL
+            cenv.pop()
+            return r ?? cenv.NIL
         }
     }
     let fn = Func(name:"lambda",args:(state,params.count,params.count+optionals.count),fun:nf)
@@ -125,10 +128,28 @@ extension LispRuntime {
             return try Number(num: args[0].num % args[1].num)
         }
         define(name:">",args:(.param,2,2)) { args,env,_ in
-            return try args[0].num > args[1].num ? env.TRUE : env.NIL
+            if let a = args[0] as? Number, let b = args[1] as? Number {
+                return a.val > b.val ? env.TRUE : env.NIL
+            }
+            return "\(args[0])" > "\(args[1])" ? env.TRUE : env.NIL
         }
         define(name:"<",args:(.param,2,2)) { args,env,_ in
-            return try args[0].num < args[1].num ? env.TRUE : env.NIL
+            if let a = args[0] as? Number, let b = args[1] as? Number {
+                return a.val < b.val ? env.TRUE : env.NIL
+            }
+            return "\(args[0])" < "\(args[1])" ? env.TRUE : env.NIL
+        }
+        define(name:">=",args:(.param,2,2)) { args,env,_ in
+            if let a = args[0] as? Number, let b = args[1] as? Number {
+                return a.val >= b.val ? env.TRUE : env.NIL
+            }
+            return "\(args[0])" >= "\(args[1])" ? env.TRUE : env.NIL
+        }
+        define(name:"<=",args:(.param,2,2)) { args,env,_ in
+            if let a = args[0] as? Number, let b = args[1] as? Number {
+                return a.val <= b.val ? env.TRUE : env.NIL
+            }
+            return "\(args[0])" <= "\(args[1])" ? env.TRUE : env.NIL
         }
         define(name:"cons",args:(.param,2,2)) { args,_,_ in
             return Cons(car: args[0], cdr: args[1])
@@ -142,25 +163,43 @@ extension LispRuntime {
         define(name:"eq",args:(.param,2,2)) { args,env,_ in
             return args[0].isEq(args[1]) ? env.TRUE : env.NIL
         }
+        define(name:"atom",args:(.param,1,1)) { args,env,_ in
+            return args[0] is Atom || args[0] is Number || args[0] is Str ? env.TRUE : env.NIL
+        }
         define(name:"consp",args:(.param,1,1)) { args,env,_ in
             return args[0] is Cons ? env.TRUE : env.NIL
         }
         define(name:"numberp",args:(.param,1,1)) { args,env,_ in
             return args[0] is Number ? env.TRUE : env.NIL
         }
-        define(name:"atom",args:(.param,1,1)) { args,env,_ in
-            return args[0] is Atom || args[0] is Number || args[0] is Str ? env.TRUE : env.NIL
+        define(name:"stringp",args:(.param,1,1)) { args,env,_ in
+            return args[0] is Str ? env.TRUE : env.NIL
+        }
+        define(name:"funp",args:(.param,1,1)) { args,env,_ in
+            return args[0] is Func ? env.TRUE : env.NIL
+        }
+        define(name:"putprop",args:(.param,3,3)) { args,env,_ in
+            guard let atom = args[0] as? Atom else { throw LispError.value("putprop needs atom as first argument") }
+            guard let key = args[1] as? Atom else { throw LispError.value("putprop needs atom as second argument") }
+            atom.setProp(key,args[2])
+            return args[2]
+        }
+        define(name:"getprop",args:(.param,2,2)) { args,env,_ in
+            guard let atom = args[0] as? Atom else { throw LispError.value("getprop needs atom as first argument") }
+            guard let key = args[1] as? Atom else { throw LispError.value("getprop needs atom as second argument") }
+            if let v = atom.getProp(key) { return v }
+            else { return env.NIL }
         }
         define(name:"quote",args:(.param,1,1),special:true) { args,_,_ in
             return args[0]
         }
         define(name:"rplaca",args:(.param,2,2)) { args,_,_ in
-            guard let c = args[0] as?  Cons else { throw LispError.value("rplaca needs cons as first value") }
+            guard let c = args[0] as?  Cons else { throw LispError.value("rplaca needs cons as first argument") }
             c.carValue = args[1]
             return args[1]
         }
         define(name:"rplacd",args:(.param,2,2)) { args,_,_ in
-            guard let c = args[0] as?  Cons else { throw LispError.value("rplacd needs cons as first value") }
+            guard let c = args[0] as?  Cons else { throw LispError.value("rplacd needs cons as first argument") }
             c.cdrValue = args[1]
             return args[1]
         }
@@ -194,6 +233,13 @@ extension LispRuntime {
             }
             return r
         }
+        define(name:"funset",args:(.param,2,2)) { args,env,_ in
+            guard let a = args[0] as? Atom else { throw LispError.syntax("funset expects atom as first argument") }
+            guard let f = args[1] as? Func else { throw LispError.syntax("funset expects function as second argument") }
+            a.setf(f)
+            f.name = a.name
+            return f
+        }
         define(name:"list",args:(.rest,0,0)) { args,env,tail in
             return try env.lisp.arrayToList(args)
         }
@@ -211,7 +257,7 @@ extension LispRuntime {
         }
         define(name:"and",args:(.param,2,2),special:true) { args,env,tail in
             let e = try args[0].eval(env,nil)
-            if !e.isNIL() { return e }
+            if e.isNIL() { return e }
             return try args[1].eval(env,tail)
         }
         define(name:"strformat",args:(.optional,1,100)) { args,env,tail in
@@ -312,22 +358,6 @@ extension LispRuntime {
             }
             return NIL
         }
-        define(name:"cond",args:(.rest,1,100),special:true) { args,env,tail in
-            let NIL = env.NIL
-            for e in args {
-                if let c = e as? Cons {
-                    if try !c.carValue.eval(env,nil).isNIL() {
-                        let b = c.cdrValue as! Cons
-                        var r: Expr?
-                        for v in b {
-                            r = try v.eval(env,nil)
-                        }
-                        return r ?? NIL
-                    }
-                } else { throw LispError.syntax("Bad COND syntax") }
-            }
-            return NIL
-        }
         define(name:"catch",args:(.param,2,2),special:true) { args,env,tail in
             let tag = try args[0].eval(env,nil)
             do {
@@ -352,7 +382,7 @@ extension LispRuntime {
         }
         define(name:"function",args:(.param,1,1)) { args,env,tail in
             let e = args[0]
-            if let c = e as? Cons, c.carValue.isEq(env.lisp.intern(name:"lambda")) {
+            if let c = e as? Cons, c.carValue.isEq(env.lisp.intern(name:"lambda")) { // return e.eval(env) ?
                 var i = c.makeIterator()
                 var nargs = [Expr]()
                 _ = i.next() // skip lambda
@@ -362,47 +392,77 @@ extension LispRuntime {
             if let f = e as? Func {
                 return f
             }
-            return try e.funVal
+            if let f = e as? Atom {
+                return f.fun == nil ? env.NIL : try f.funVal(env)
+            }
+            return env.NIL
         }
         define(name:"funcall",args:(.rest,1,1),special:true) { args,env,tail in
-            let f = try args[0].eval(env,nil).funVal
-            var nargs = try args[1..<args.count].map() { try f.special ? $0 : $0.eval(env,nil) }
-            switch f.nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
-            case (.param,let min, _): if nargs.count != min { throw LispError.param("\(f) expecting \(min) args") }
-            case (.optional,let min, let max): if nargs.count < min || nargs.count > max { throw LispError.param("\(f) expecting \(min)-\(max) args") }
-            case (.rest,let min, _): if nargs.count < min { throw LispError.param("\(f) expecting at least \(min) args") }
-            }
+            let f = try args[0].eval(env,nil).funVal(env)
+            let nargs = try args[1..<args.count].map() { try f.special ? $0 : $0.eval(env,nil) }
+            try f.checkArgs(nargs.count)
             env.lastFunc = f
-            var res = try f.fun(nargs,env,tail)
+            let res = try f.fun(nargs,env,tail)
             return res
         }
         define(name:"apply",args:(.param,2,2)) { args,env,tail in
-            let f = try args[0].funVal
+            let f = try args[0].funVal(env)
             if args[1].isEq(env.NIL) { return try f.fun([],env,tail) }
             guard let c = args[1] as? Cons else { throw LispError.syntax("Apply wants nil/list as second argument")}
-            var nargs = c.map() { $0 }
-            switch f.nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
-            case (.param,let min, _): if nargs.count != min { throw LispError.param("\(f) expecting \(min) args") }
-            case (.optional,let min, let max): if nargs.count < min || nargs.count > max { throw LispError.param("\(f) expecting \(min)-\(max) args") }
-            case (.rest,let min, _): if nargs.count < min { throw LispError.param("\(f) expecting at least \(min) args") }
-            }
+            let nargs = c.map() { $0 }
+            try f.checkArgs(nargs.count)
             env.lastFunc = f
-            var res = try f.fun(nargs,env,tail)
+            let res = try f.fun(nargs,env,tail)
             return res
         }
         define(name:"lambda",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"fn",args:(.rest,1,100),special:true,fun:lambda)
         define(name:"nlambda",args:(.rest,1,100),special:true) { args,env,tail in
-            let nl = try let_stmt(args,env,rec:true,tail:tail) as! Func
+            let nl = try lambda(args,env,tail:tail)
             nl.special = true
             return nl
         }
-        
+        define(name:"macro",args:(.rest,1,100),special:true) { args,env,tail in
+            let nl = try lambda(args,env,tail:tail)
+            nl.special = true
+            nl.ftype = .macro
+            return nl
+        }
         define(name:"let*",args:(.rest,1,100),special:true) { args,env,tail in
             return try let_stmt(args,env,rec:true,tail:tail)
         }
         define(name:"let",args:(.rest,1,100),special:true) { args,env,tail in
             return try let_stmt(args,env,rec:false,tail:tail)
+        }
+        define(name:"flet",args:(.rest,1,100),special:true) { args,env,tail in // (flet ((f params .body)...(...)) . body)
+            env.push()
+            for p in args[0] as! Cons {
+                let a = try p.car as! Atom
+                //env.bindfun(a,nil)
+                let par = try p.cdr.car
+                let body = try p.cdr.cdr as! Cons
+                let nargs = try [par] + body.toArray(){$0}
+                let fun = try lambda(nargs,env)
+                env.bindfun(a,fun)
+            }
+            var res: Expr?
+            try args[1...].forEach() { res = try $0.eval(env,nil) }
+            env.pop()
+            return res ?? env.NIL
+        }
+        define(name:"symbol-table",args:(.param,0,0),special:true) { args,env,tail in
+            var p = Cons(car:env.NIL,cdr:env.NIL)
+            for (_,atom) in env.lisp.symbols {
+                p.carValue = atom
+                p = Cons(car:env.NIL,cdr:p)
+            }
+            return p.cdrValue
+        }
+        define(name:"unclosure",args:(.param,1,1),special:true) { args,env,_ in
+            guard let a = args[0] as? Atom else { throw LispError.syntax("unclosure expects atom as first argument") }
+            let f = try a.funVal(env)
+            f.isClosure = false
+            return f
         }
     }
 }

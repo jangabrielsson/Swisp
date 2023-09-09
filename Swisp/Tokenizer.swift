@@ -24,11 +24,13 @@ class Tokenizer {
         case EOF
     }
     
-    static let specToken: [CType:TokenType] = [
+    static let specToken: [String:TokenType] = [
         "(":TokenType.LPAR,
         ")":TokenType.RPAR,
         ".":TokenType.DOT,
         "'":TokenType.QUOTE,
+        ">=":TokenType.SYM,
+        "<=":TokenType.SYM,
     ]
     
     struct Token: CustomStringConvertible {
@@ -49,7 +51,15 @@ class Tokenizer {
         while true {
             if s.isEof() { throw LispError.token("Unfinished string at line: \(s.line)") }
             if s.peek() == "\"" { _ = s.next(); break }
-            buff.append(s.next())
+            if s.peek() == "\\" {
+                _ = s.next()
+                switch s.peek() {
+                case "n": buff.append("\n"); _ = s.next()
+                case "t": buff.append("\t"); _ = s.next()
+                case "r": buff.append("\r"); _ = s.next()
+                default: buff.append("\\")
+                }
+            } else { buff.append(s.next()) }
         }
         return Token(token:.STR,value:buff2str(buff),line:s.line)
     }
@@ -76,7 +86,16 @@ class Tokenizer {
     }
     
     static func charTokenizer(c: CType, s: InputStream) -> Token {
-        return Token(token:Tokenizer.specToken[c, default:.TOKEN],value:String(c),line:s.line)
+        var buff = [c]
+        let p = s.peek() ?? " "
+        if "><=".unicodeScalars.contains(p) {
+            let tt = buff + [p]
+            if Tokenizer.specToken[buff2str(tt)] != nil {
+                buff.append(p); _ = s.next()
+            }
+        }
+        let str = buff2str(buff)
+        return Token(token:Tokenizer.specToken[str, default:.TOKEN],value:str,line:s.line)
     }
 
     typealias ParseFun = (CType, InputStream) throws -> Token
@@ -89,7 +108,7 @@ class Tokenizer {
     
     static var tokenizerLookup: [CType:ParseFun] = {
         var tm: [CType:ParseFun] = ["\"" : Tokenizer.stringTokenizer]
-        addTokenizerFuns(tm:&tm,str:"()[]+/,.'^`@!#><", tf: Tokenizer.charTokenizer)
+        addTokenizerFuns(tm:&tm,str:"()[]+/,.'^`@!#><%", tf: Tokenizer.charTokenizer)
         addTokenizerFuns(tm:&tm,str:"0123456789", tf: Tokenizer.numTokenizer)
         addTokenizerFuns(tm:&tm,str:"-*&_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", tf: Tokenizer.symbolTokenizer)
         return tm

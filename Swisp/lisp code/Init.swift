@@ -3,6 +3,17 @@ let __init_lsp = """
 (setq *trace-level* 0)
 (setq *log-level* 2)
 
+(funset 'defspecial (nlambda (name params &rest body) (funset name (eval (cons 'nlambda (cons params body)))) name))
+(defspecial defun (name params &rest body)
+    (funset name (eval (cons 'lambda (cons params body))))
+    (if (and (consp body)(stringp (car body))) (putprop name '*description* (car body)))
+    name
+)
+(defspecial defmacro (name params &rest body) (funset name (eval (cons 'macro (cons params body)))) name)
+
+(unclosure defun)  ;; hack, want them to be used in (flet (...) (defun ...)) and not bring their own closures
+(unclosure defmacro)
+
 (defmacro defparameter(var val)(list 'setq var val))
 (defmacro defvar(var val)(list 'setq var val))
 (defmacro defconst(var val)(list 'setq var val))
@@ -140,9 +151,6 @@ let __init_lsp = """
        (while (< ,var ,ll)
         (setq ,var (+ ,var 1))
         ,@body))))
-
-(defmacro setf (var value)
-    `(setq ,var ,value))
     
 (defmacro incf (var &optional (value 1))
     `(setq ,var (+ ,var ,value)))
@@ -177,9 +185,6 @@ let __init_lsp = """
                            (case1 (cdr x)))))))
       (list 'let (list (list '*temp* (car body)))
              (cons 'cond (case1 (cdr body))))))
-   
-(defmacro defun2(name params &rest body)
-   (list 'funset name (cons 'lambda (cons params body))))
         
 (defparameter *read-macros* nil)
 (defun set-macro-character(c fun)
@@ -196,9 +201,9 @@ let __init_lsp = """
     `(progn (setq ,tt (clock) ,res ,expr ,tt (- (clock) ,tt)) (format t "%s milliseconds\n" ,tt) ,res)))
     
 (defun format (stream format &rest args)
-    (print (unstr (apply strformat (cons format args)))))
+    (print (unstr (apply #'strformat (cons format args)))))
 
-(defvar *0 nil)
+(defvar * nil)
 (defvar ** nil)
 (defvar *** nil)
 
@@ -212,14 +217,52 @@ let __init_lsp = """
     (when (not (memq expr '(* ** ***)))
         (setq *** **)
         (setq ** *)
-        (setq *0 res))
+        (setq * res))
     (format t "%s\n" res)
     (toploop)
 )
 
-(defun fact1(x) (if (eq x 0) 1 (* x (fact1 (- x 1)))))
-(defun fact2(x) (fact3 x 1))
-(defun fact3(x acc) (if (eq x 0) acc (fact3 (- x 1) (* x acc))))
+(defun factrec(x) (if (eq x 0) 1 (* x (factrec (- x 1)))))
+(flet ((factt(x acc) (if (eq x 0) acc (factt (- x 1) (* x acc)))))
+   (defun fact(x) (factt x 1))
+)
 
+(defun filter(f x)
+    (if (eq x nil) nil
+        (if (#f (car x)) (cons (car x) (filter f (cdr x))) (filter f (cdr x)))) ;; #f => (function f)
+)
+(defun map(f x)
+    (if (eq x nil) nil
+        (cons (funcall f (car x)) (map f (cdr x))))
+)
+(defun mapf(f x)
+    (if (eq x nil) nil
+        (progn (funcall f (car x)) (mapf f (cdr x))))
+)
+
+(defun qsort (L)
+  (cond
+    ((null L) nil)
+    (t
+      (append
+        (qsort (listLess (car L) (cdr L)))
+        (cons (car L)
+        (qsort (listGte (car L) (cdr L))))))))
+
+(defun listLess (a b)
+  (cond
+    ((or (null a) (null b)) nil)
+    ((< a (car b)) (listLess a (cdr b)))
+    (t (cons (car b) (listLess a (cdr b))))))
+
+(defun listGte (a b)
+  (cond
+    ((or (null a) (null b)) nil)
+    ((>= a (car b)) (listGte a (cdr b)))
+    (t (cons (car b) (listGte a (cdr b))))))
+
+(defun list-funs()
+    (mapf #'(lambda(f) (format t "fun:%s\n" f)) (filter #'function (qsort (symbol-table))))
+)
 """
 

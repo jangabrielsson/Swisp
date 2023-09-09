@@ -25,7 +25,7 @@ protocol Expr: CustomStringConvertible {
     var str: String { get throws }
     var num: NumType { get throws }
     var binding: Expr { get throws }
-    var funVal: Func { get throws }
+    func funVal(_ env: Env) throws -> Func
     func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr
     func eval(_ env: Env, _ tail: Func?) throws -> Expr
     func set(_ value: Expr) throws
@@ -59,10 +59,8 @@ extension Expr {
             throw LispError.value("\(self) not an atom")
         }
     }
-    var funVal: Func {
-        get throws {
-            throw LispError.value("\(self) not a function")
-        }
+    func funVal(_ env: Env) throws -> Func {
+       throw LispError.value("\(self) not a function")
     }
     func call(_ exprList: Expr, _ caller: Cons, _ env: Env, _ tail: Func?) throws -> Expr {
         throw LispError.value("\(env.lastCall ?? self) not a function")
@@ -111,6 +109,7 @@ class Atom : Expr, Hashable {
     var name: String
     var val: Expr?
     private (set) var fun: Func?
+    var props: [Atom:Expr]?
     var binding: Expr { val! }
     func set(_ value: Expr) {
         val = value
@@ -118,11 +117,12 @@ class Atom : Expr, Hashable {
     func setf(_ f: Func) {
         fun = f
     }
-    var funVal: Func {
-        get throws {
-            guard fun != nil else { throw LispError.unboundFun("Atom \(self)") }
-            return fun!
+    func funVal(_ env: Env) throws -> Func {
+        if let f = env.lookupfun(self) {
+            return f
         }
+        guard fun != nil else { throw LispError.unboundFun("Atom \(self)") }
+        return fun!
     }
     func isNIL() -> Bool { return self.type == .null }
     func eval(_ env: Env, _ tail: Func?=nil) throws -> Expr {
@@ -131,6 +131,13 @@ class Atom : Expr, Hashable {
         }
         guard val != nil else { throw LispError.unbound("Atom \(self)") }
         return val!
+    }
+    func getProp(_ atom: Atom) -> Expr? {
+        return props?[atom]
+    }
+    func setProp(_ atom: Atom, _ expr: Expr) {
+        if props == nil { props = [:] }
+        props!.updateValue(expr,forKey:atom)
     }
     func hash(into hasher: inout Hasher) {
         hasher.combine(name)
@@ -170,6 +177,11 @@ class Cons : Expr, Hashable, Equatable {
     var cdrValue: Expr
     var car: Expr { return carValue }
     var cdr: Expr { return cdrValue }
+    func funVal(_ env: Env) throws -> Func {
+        if carValue.isEq(env.lisp.intern(name:"FUNCTION")) {
+            return try self.eval(env,nil) as! Func
+        } else { throw LispError.value("\(self) not a function") }
+    }
     public var description: String {
         var res = [String]()
         var l = self as Expr
@@ -207,9 +219,10 @@ class Func : Expr { // Expr wrapper for a Swift function
     let type: DataType = .fun
     var name: String
     var special: Bool
+    var isClosure = true
     var tailArgs: [Expr]?
     var ftype: FuncType = .builtin
-    var funVal: Func { return self }
+    func funVal(_ env: Env) throws -> Func { return self }
     var nargs: (ParamType,Int,Int)
     func isFunc() -> Bool { return true }
     let fun: BuiltinFunc
@@ -218,20 +231,24 @@ class Func : Expr { // Expr wrapper for a Swift function
         if let list = exprList as? Cons {
             args = try list.toArray() { try special ? $0 : $0.eval(env,nil) }
         }
-        switch nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
-        case (.param,let min, _): if args.count != min { throw LispError.param("\(name) expecting \(min) args") }
-        case (.optional,let min, let max): if args.count < min || args.count > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
-        case (.rest,let min, _): if args.count < min { throw LispError.param("\(name) expecting at least \(min) args") }
-        }
-
+        try checkArgs(args.count)
         env.lastFunc = self
+        env.closure = isClosure
         var res = try fun(args,env,tail)
+        env.closure = true
         if ftype == .macro {            // macros evaluates their results (macroexpand)
             env.jitted[caller] = res    // "memoization for our macroexpanded code...
             env.lisp.log(.macroexpand,"\(res)")
             res = try res.eval(env,nil)
         }
         return res
+    }
+    func checkArgs(_ n:Int) throws -> Void {
+        switch nargs { // Check correct number of arguments, exact, with &optionals, and with &rest
+        case (.param,let min, _): if n != min { throw LispError.param("\(name) expecting \(min) args") }
+        case (.optional,let min, let max): if n < min || n > max { throw LispError.param("\(name) expecting \(min)-\(max) args") }
+        case (.rest,let min, _): if n < min { throw LispError.param("\(name) expecting at least \(min) args") }
+        }
     }
     public var description: String { "<\(ftype.rawValue):\(name)>" }
     init(name: String, args:(ParamType,Int,Int), special: Bool = false, fun: @escaping BuiltinFunc) {
@@ -264,7 +281,7 @@ extension Cons {
             env.lastCall = nil
             return res
         } else {
-            let f = try carValue.funVal
+            let f = try carValue.funVal(env)
             env.lastCall = nil
             let res = try f.call(cdrValue,self,env,tail)
             env.lisp.log(.callreturn,"\(carValue)\(cdrValue)=\(res)")

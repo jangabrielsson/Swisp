@@ -35,7 +35,6 @@ class LispFiles {
     private init() {
         register("/init.lsp",__init_lsp)
         register("/backquote.lsp",__backquote_lsp)
-        register("/test.lsp",__test_lsp)
     }
 }
 
@@ -73,14 +72,22 @@ class SharedDictionary<K: Hashable, V> { // Our environments/closures needs to s
     init() { dict = [:] }
 }
 
-class Bindings {
+class Bindings<K:Hashable,V> {
     var prev: Bindings?
-    var vars = [Atom:Expr]()
-    func lookup(_ atom: Atom) -> Expr? {
-        return vars[atom]
+    var vars = [K:V]()
+    func lookup(_ key: K) -> V? {
+        return vars[key] ?? prev?.lookup(key)
     }
-    func bind(_ atom: Atom, _ expr: Expr) {
-        vars.updateValue(expr,forKey:atom)
+    func bind(_ key: K, _ value: V) {
+        vars.updateValue(value,forKey:key)
+    }
+    func set(_ key: K, _ value: V) -> Bool {
+        if vars[key] == nil {
+            return prev?.set(key,value) ?? false
+        } else {
+            vars.updateValue(value,forKey:key)
+            return true
+        }
     }
     init(_ prev: Bindings?) {
         self.prev = prev
@@ -91,36 +98,45 @@ class Env {
     var lisp: LispRuntime
     var NIL: Atom
     var TRUE: Atom
-    var bindings: Bindings?
+    var bindings: Bindings<Atom,Expr>?
+    var funbindings: Bindings<Atom,Func>?
     private(set) var frameDepth = 0
     var currInput: InputStream?
     var tailCall: Func? // Forward through eval chain
     var lastFunc: Func?
     var lastCall: Expr?
+    var closure = true
     var jitted = SharedDictionary<Cons,Expr>()
     
-    func push() { frameDepth += 1; bindings = Bindings(bindings) }
-    func pop() { frameDepth += 1; bindings = bindings?.prev }
+    func push() { frameDepth += 1; bindings = Bindings(bindings); funbindings = Bindings(funbindings) }
+    func pop() { frameDepth += 1; bindings = bindings?.prev; funbindings = funbindings?.prev }
     func bind(_ atom: Atom, _ expr: Expr) { bindings?.bind(atom,expr) }
     func lookup(_ atom: Atom) -> Expr? {
-        var b = bindings
-        while let be = b {
-            if let e = be.lookup(atom) { return e }
-            b = be.prev
-        }
-        return nil
+        return bindings?.lookup(atom)
     }
     func set(_ atom: Atom, _ expr: Expr) {
-        var b = bindings
-        while let be = b {
-            if be.lookup(atom) != nil { be.bind(atom,expr); return }
-            b = be.prev
-        }
+        if bindings?.set(atom,expr) == true { return }
         atom.set(expr)
+    }
+    func lookupfun(_ atom: Atom) -> Func? {
+        return funbindings?.lookup(atom)
+    }
+    func bindfun(_ atom: Atom, _ fun: Func) {
+        funbindings?.bind(atom,fun)
+    }
+    func dumpfuns() {
+        var b = funbindings
+        while let b1=b {
+            for (k,v) in b1.vars {
+                print("FB \(k)=\(v)")
+            }
+            b = b1.prev
+        }
     }
     func copy() -> Env {
         let env = Env(lisp)
         env.bindings = bindings
+        env.funbindings = funbindings
         env.frameDepth = frameDepth
         env.jitted = jitted
         env.lastCall = lastCall
