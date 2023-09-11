@@ -1,6 +1,6 @@
 # Swisp
 Lisp in Swift excercise
-![Files](/dir.png | width=200)
+![](/dir.png | width="200")
 * small, suitable for embedding
 * atoms have value and function bindings
 * lambdas are closures
