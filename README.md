@@ -1,6 +1,6 @@
 # Swisp
 Lisp in Swift excercise
-![Screenshot of a comment on a GitHub issue showing an image, added in the Markdown, of an Octocat smiling and raising a tentacle.](/dir.png)
+![Files](/dir.png | width=200)
 * small, suitable for embedding
 * atoms have value and function bindings
 * lambdas are closures
