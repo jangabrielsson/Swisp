@@ -1,12 +1,14 @@
 # Swisp
 Lisp in Swift excercise
 
+* small, suitable for embedding
 * atoms have value and function bindings
 * lambdas are closures
 * tail-recursion (at least the obvious cases...)
 * macros
 * backquote read macro
-* "interpreter" but some expressions are "compiled" on the fly... (macroexpansions are memoized)
+* "interpreted" but some expressions are "compiled" on the fly... (macroexpansions are memoized)
+* bignum supported, can be typealised to Double if needed
 
 Functions:
 ```
