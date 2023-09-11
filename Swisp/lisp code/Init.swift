@@ -261,8 +261,15 @@ let __init_lsp = """
     ((>= a (car b)) (listGte a (cdr b)))
     (t (cons (car b) (listGte a (cdr b))))))
 
+(defun funtype(f)
+   (cond ((ismacro f) 'macro)
+         ((isbuiltin f) 'builtin)
+         ((isspecial f) 'special)
+         ((isspecial f) 'fun)
+         (t 'fun)))
+
 (defun list-funs()
-    (mapf #'(lambda(f) (format t "fun:%s\n" f)) (filter #'function (qsort (symbol-table))))
+    (mapf #'(lambda(f) (format t "%s: %s %s\n" (funtype #f) f (arglist #f))) (filter #'function (qsort (symbol-table))))
 )
 """
 

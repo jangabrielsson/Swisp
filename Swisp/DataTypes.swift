@@ -178,7 +178,7 @@ class Cons : Expr, Hashable, Equatable {
     var car: Expr { return carValue }
     var cdr: Expr { return cdrValue }
     func funVal(_ env: Env) throws -> Func {
-        if carValue.isEq(env.lisp.intern(name:"FUNCTION")) {
+        if carValue.isEq(env.lisp.FUNCTION) {
             return try self.eval(env,nil) as! Func
         } else { throw LispError.value("\(self) not a function") }
     }
@@ -219,6 +219,7 @@ class Func : Expr { // Expr wrapper for a Swift function
     let type: DataType = .fun
     var name: String
     var special: Bool
+    var params: String?
     var isClosure = true
     var tailArgs: [Expr]?
     var ftype: FuncType = .builtin

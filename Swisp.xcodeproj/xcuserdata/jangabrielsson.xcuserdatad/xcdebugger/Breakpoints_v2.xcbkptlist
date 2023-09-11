@@ -632,8 +632,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "234"
-            endingLineNumber = "234"
+            startingLineNumber = "245"
+            endingLineNumber = "245"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -648,8 +648,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
+            startingLineNumber = "249"
+            endingLineNumber = "249"
             landmarkName = "load(_:log:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -904,8 +904,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
+            startingLineNumber = "413"
+            endingLineNumber = "413"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -920,8 +920,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "327"
-            endingLineNumber = "327"
+            startingLineNumber = "411"
+            endingLineNumber = "411"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -936,8 +936,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
+            startingLineNumber = "231"
+            endingLineNumber = "231"
             landmarkName = "call(_:_:_:_:)"
             landmarkType = "7">
             <Locations>
@@ -984,8 +984,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
+            startingLineNumber = "242"
+            endingLineNumber = "242"
             landmarkName = "call(_:_:_:_:)"
             landmarkType = "7">
             <Locations>
@@ -1047,8 +1047,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "237"
-            endingLineNumber = "237"
+            startingLineNumber = "238"
+            endingLineNumber = "238"
             landmarkName = "call(_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1063,8 +1063,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "239"
-            endingLineNumber = "239"
+            startingLineNumber = "240"
+            endingLineNumber = "240"
             landmarkName = "call(_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1079,8 +1079,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
+            startingLineNumber = "278"
+            endingLineNumber = "278"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1095,8 +1095,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "164"
-            endingLineNumber = "164"
+            startingLineNumber = "190"
+            endingLineNumber = "190"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1111,8 +1111,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "227"
-            endingLineNumber = "227"
+            startingLineNumber = "283"
+            endingLineNumber = "283"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1127,8 +1127,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
+            startingLineNumber = "284"
+            endingLineNumber = "284"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1143,73 +1143,9 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "211"
-            endingLineNumber = "211"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
             landmarkName = "setupBuiltins()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7E5B986F-7185-4F95-BB5D-6A20D3E60907"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Lisp.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "118"
-            endingLineNumber = "118"
-            landmarkName = "set(_:_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "7E5B986F-7185-4F95-BB5D-6A20D3E60907 - 598c2210f0eb491a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swisp.Env.set(Swisp.Atom, Swisp.Expr) -&gt; ()"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Lisp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "102"
-                  endingLineNumber = "102"
-                  offsetFromSymbolStart = "84">
-               </Location>
-               <Location
-                  uuid = "7E5B986F-7185-4F95-BB5D-6A20D3E60907 - 598c2210f0eb4af9"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Swisp.Env.set(Swisp.Atom, Swisp.Expr) -&gt; ()"
-                  moduleName = "Swisp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/jangabrielsson/Desktop/dev/Swisp/Swisp/Lisp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "101"
-                  endingLineNumber = "101"
-                  offsetFromSymbolStart = "84">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7555CF39-E497-4D10-8AE0-F3447AB11E96"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Swisp/Lisp.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
-            landmarkName = "init(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -1334,8 +1270,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
+            startingLineNumber = "281"
+            endingLineNumber = "281"
             landmarkName = "eval(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1350,8 +1286,8 @@
             filePath = "Swisp/Lisp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "248"
-            endingLineNumber = "248"
+            startingLineNumber = "259"
+            endingLineNumber = "259"
             landmarkName = "eval(_:)"
             landmarkType = "7">
             <Locations>
@@ -1398,8 +1334,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "284"
-            endingLineNumber = "284"
+            startingLineNumber = "285"
+            endingLineNumber = "285"
             landmarkName = "eval(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1414,8 +1350,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "362"
-            endingLineNumber = "362"
+            startingLineNumber = "452"
+            endingLineNumber = "452"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1462,8 +1398,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "246"
-            endingLineNumber = "246"
+            startingLineNumber = "306"
+            endingLineNumber = "306"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1526,8 +1462,8 @@
             filePath = "Swisp/DataTypes.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "276"
-            endingLineNumber = "276"
+            startingLineNumber = "277"
+            endingLineNumber = "277"
             landmarkName = "eval(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -1542,8 +1478,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
             landmarkName = "lambda(_:_:tail:)"
             landmarkType = "9">
          </BreakpointContent>
@@ -1558,8 +1494,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "269"
-            endingLineNumber = "269"
+            startingLineNumber = "337"
+            endingLineNumber = "337"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1606,8 +1542,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "264"
-            endingLineNumber = "264"
+            startingLineNumber = "332"
+            endingLineNumber = "332"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1686,8 +1622,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "401"
-            endingLineNumber = "401"
+            startingLineNumber = "519"
+            endingLineNumber = "519"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1764,8 +1700,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "384"
-            endingLineNumber = "384"
+            startingLineNumber = "482"
+            endingLineNumber = "482"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1780,8 +1716,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "237"
-            endingLineNumber = "237"
+            startingLineNumber = "295"
+            endingLineNumber = "295"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1843,8 +1779,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
+            startingLineNumber = "556"
+            endingLineNumber = "556"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1859,8 +1795,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
+            startingLineNumber = "192"
+            endingLineNumber = "192"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -1922,8 +1858,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "195"
+            endingLineNumber = "195"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>
@@ -1986,8 +1922,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "442"
-            endingLineNumber = "442"
+            startingLineNumber = "578"
+            endingLineNumber = "578"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -2049,8 +1985,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "448"
-            endingLineNumber = "448"
+            startingLineNumber = "584"
+            endingLineNumber = "584"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -2097,8 +2033,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "438"
-            endingLineNumber = "438"
+            startingLineNumber = "574"
+            endingLineNumber = "574"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
             <Locations>
@@ -2145,8 +2081,8 @@
             filePath = "Swisp/Builtins.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
+            startingLineNumber = "585"
+            endingLineNumber = "585"
             landmarkName = "setupBuiltins()"
             landmarkType = "7">
          </BreakpointContent>

@@ -167,6 +167,8 @@ class LispRuntime {
     var QUOTE = Atom(name:"quote")
     var OPTIONAL = Atom(name:"&optional")
     var REST = Atom(name:"&rest")
+    var LAMBDA = Atom(name:"lambda")
+    var FUNCTION = Atom(name:"function")
     var logger = LispLogger()
     lazy var log: (LispLogger.Flag,String) -> () = { logger.log }()
     let stdin = ConsoleInputStream()
@@ -187,11 +189,18 @@ class LispRuntime {
         return atom
     }
     
-    func define(name:String, args:(ParamType,Int,Int), special: Bool = false, fun:@escaping BuiltinFunc) {
+    func define(name:String,
+                args:(ParamType,Int,Int),
+                special: Bool = false,
+                params: String? = nil,
+                descr: String,
+                fun:@escaping BuiltinFunc) {
         let funw = Func(name:name,args:args,special:special,fun:fun)
-        intern(name:name).setf(funw)
+        funw.params = params == nil ? "()" : params!.uppercased()
+        let atom = intern(name:name)
+        atom.setf(funw)
     }
-        
+    
     func define(name:String) -> Atom {
         intern(name:name)
     }
@@ -204,6 +213,8 @@ class LispRuntime {
         symbols[QUOTE.name] = QUOTE
         symbols[OPTIONAL.name]=OPTIONAL
         symbols[REST.name] = REST
+        symbols[LAMBDA.name] = LAMBDA
+        symbols[FUNCTION.name] = FUNCTION
         define(name:"true").set(TRUE)
         setupBuiltins()
         if loadLib {
