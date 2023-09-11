@@ -1,12 +1,12 @@
 # Swisp
 Lisp in Swift excercise
 
-*atoms have value and function bindings
-*lambdas are closures
-*tail-recursion (at least the obvious cases...)
-*macros
-*backquote read macro
-*"interpreter" but some expressions are "compiled" on the fly... (macroexpansions are memoized)
+* atoms have value and function bindings
+* lambdas are closures
+* tail-recursion (at least the obvious cases...)
+* macros
+* backquote read macro
+* "interpreter" but some expressions are "compiled" on the fly... (macroexpansions are memoized)
 
 ´´´
 Functions:
