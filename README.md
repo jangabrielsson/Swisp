@@ -8,8 +8,8 @@ Lisp in Swift excercise
 * backquote read macro
 * "interpreter" but some expressions are "compiled" on the fly... (macroexpansions are memoized)
 
-´´´
 Functions:
+```
 BUILTIN: % (X Y)
 BUILTIN: * (X Y)
 BUILTIN: + (X Y)
@@ -136,4 +136,4 @@ BUILTIN: UNSTR (STR)
 FUN: VECTORP (EXPR)
 MACRO: WHEN (TEST &REST BODY)
 BUILTIN: WHILE (TEST .BODY)
-´´´
+```
