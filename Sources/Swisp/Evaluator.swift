@@ -16,6 +16,10 @@ public enum Step {
 
 public func trampoline(_ initial: Step) throws -> SExpr {
     var step = initial
+    // Track last closure frame for tail-call optimization
+    var tailFrame: Frame? = nil
+    var tailClosureEnv: Frame? = nil
+
     while true {
         switch step {
         case .done(let v):
@@ -23,11 +27,45 @@ public func trampoline(_ initial: Step) throws -> SExpr {
         case .error(let msg):
             throw LispError(msg)
         case .value(let v, let k):
+            tailFrame = nil; tailClosureEnv = nil
             step = k(v)
         case .eval(let expr, let env, let k):
+            tailFrame = nil; tailClosureEnv = nil
             step = eval(expr, env, k)
         case .apply(let fn, let args, let k):
+            // Self-tail-call optimization: same closure → reuse env frame
+            if let frame = tailFrame, let prevClosureEnv = tailClosureEnv {
+                if case .closure(let params, let rest, let body, let closureEnv) = fn,
+                   closureEnv === prevClosureEnv {
+                    frame.bindings.removeAll()
+                    if let r = rest {
+                        guard args.count >= params.count else {
+                            throw LispError("arity mismatch: expected at least \(params.count) args, got \(args.count)")
+                        }
+                        for (p, a) in zip(params, args) { frame.bindings[p] = a }
+                        var restList: SExpr = .null
+                        for arg in args[params.count...].reversed() { restList = .cons(arg, restList) }
+                        frame.bindings[r] = restList
+                    } else {
+                        guard params.count == args.count else {
+                            throw LispError("arity mismatch: expected \(params.count) args, got \(args.count)")
+                        }
+                        for (p, a) in zip(params, args) { frame.bindings[p] = a }
+                    }
+                    step = eval(body, frame, k)
+                    continue
+                }
+            }
+            // Normal apply
             step = apply(fn, args, k)
+            // Save frame if this is a closure application (for tail-call detection)
+            if case .closure(_, _, _, let closureEnv) = fn,
+               case .eval(_, let env, _) = step {
+                tailFrame = env
+                tailClosureEnv = closureEnv
+            } else {
+                tailFrame = nil; tailClosureEnv = nil
+            }
         }
     }
 }
