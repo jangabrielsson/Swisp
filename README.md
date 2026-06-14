@@ -20,6 +20,7 @@ echo '(+ 1 2)' | swift run SwispCLI -  # Pipe stdin
 - **`setq`** — multiple-pair assignment
 - **`require` / `provide`** — load Lisp libraries
 - **CPS evaluator** — continuation-passing style with trampoline
+- **Tail-call optimization** — self-recursive tail calls reuse the environment frame in O(1) memory
 - **Clean errors** — no Swift stack traces for Lisp errors
 - **REPL** — with multi-line expression support
 
@@ -38,6 +39,11 @@ echo '(+ 1 2)' | swift run SwispCLI -  # Pipe stdin
 
 ;; Quasiquote
 `(a ,@(map (lambda (n) (* n n)) '(1 2 3)))
+
+;; Tail-recursive — O(1) memory, 5M+ calls
+(define (count n max)
+  (if (= n max) n (count (+ n 1) max)))
+(count 0 5000000)  ; → 5000000
 ```
 
 ## Builtins
