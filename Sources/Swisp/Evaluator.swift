@@ -95,6 +95,8 @@ public func eval(_ expr: SExpr, _ env: Frame, _ k: @escaping Cont) -> Step {
             case "setq": return evalSetq(cdr, env, k)
             case "quasiquote": return evalQuasiquote(cdr, env, k)
             case "begin": return evalBegin(cdr, env, k)
+            case "while": return evalWhile(cdr, env, k)
+            case "break": return evalBreak(cdr, env, k)
             case "require": return evalRequire(cdr, env, k)
             default: break
             }
@@ -204,6 +206,72 @@ func evalSeq(_ exprs: [SExpr], _ env: Frame, _ k: @escaping Cont) -> Step {
     if exprs.count == 1 { return eval(exprs[0], env, k) }
     return eval(exprs[0], env) { _ in
         evalSeq(Array(exprs.dropFirst()), env, k)
+    }
+}
+
+// MARK: - While / Break
+
+/// Sentinel for break signals: (break-sentinel . value)
+let breakSentinel = "%break%"
+
+func makeBreakSignal(_ val: SExpr) -> SExpr {
+    .cons(.symbol(breakSentinel), .cons(val, .null))
+}
+
+func unwrapBreak(_ expr: SExpr) -> (value: SExpr, isBreak: Bool) {
+    if case .cons(.symbol(breakSentinel), .cons(let val, .null)) = expr {
+        return (val, true)
+    }
+    return (expr, false)
+}
+
+func evalWhile(_ cdr: SExpr, _ env: Frame, _ k: @escaping Cont) -> Step {
+    guard case .cons(let test, let bodyForms) = cdr else {
+        return .error("while: invalid form")
+    }
+    return evalWhileLoop(test, bodyForms, env, k)
+}
+
+func evalWhileLoop(_ test: SExpr, _ body: SExpr, _ env: Frame, _ k: @escaping Cont) -> Step {
+    eval(test, env) { testVal in
+        if !isTruthy(testVal) {
+            return .value(.null, k)
+        }
+        return evalWhileBody(body, env) { val in
+            let r = unwrapBreak(val)
+            if r.isBreak {
+                return .value(r.value, k)
+            }
+            return evalWhileLoop(test, body, env, k)
+        }
+    }
+}
+
+func evalWhileBody(_ body: SExpr, _ env: Frame, _ k: @escaping Cont) -> Step {
+    guard case .cons(let form, let rest) = body else {
+        return .value(.null, k)
+    }
+    return eval(form, env) { val in
+        let (_, isBreak) = unwrapBreak(val)
+        if isBreak {
+            return .value(val, k)  // propagate break signal up
+        }
+        if case .null = rest {
+            return .value(.null, k)
+        }
+        return evalWhileBody(rest, env, k)
+    }
+}
+
+func evalBreak(_ cdr: SExpr, _ env: Frame, _ k: @escaping Cont) -> Step {
+    if case .null = cdr {
+        return .value(makeBreakSignal(.null), k)
+    }
+    guard case .cons(let valExpr, .null) = cdr else {
+        return .error("break: invalid form")
+    }
+    return eval(valExpr, env) { val in
+        .value(makeBreakSignal(val), k)
     }
 }
 
